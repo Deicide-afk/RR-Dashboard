@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RR Dashboard</title>
+<style>
+:root {
+  --bg:#1a1a2e;--surface:#16213e;--card:#0f3460;--accent:#e94560;--accent2:#f5a623;
+  --text:#eaeaea;--muted:#8892a4;--border:#2a3a5c;--green:#27ae60;
+  --font:'Segoe UI',system-ui,sans-serif;
+  --mon:#2980b9;--tue:#6d4c41;--wed:#ecf0f1;--thu:#f1c40f;--fri:#8e44ad;--sat:#27ae60;--sun:#e67e22;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
+
+/* GATE */
+#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.gate-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:320px;text-align:center;}
+.gate-box h1{font-size:1.4rem;margin-bottom:6px;color:var(--accent);}
+.gate-box p{font-size:.8rem;color:var(--muted);margin-bottom:24px;}
+.gate-box input{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;margin-bottom:12px;text-align:center;letter-spacing:4px;}
+.gate-box input:focus{outline:none;border-color:var(--accent);}
+.btn-primary{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
+.gate-error{color:var(--accent);font-size:.8rem;margin-top:8px;display:none;}
+
+/* APP */
+#app{display:none;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar h1{font-size:1rem;font-weight:700;color:var(--accent);}
+.topbar .date-display{font-size:.75rem;color:var(--muted);}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 8px;overflow-x:auto;}
+.tab-btn{padding:10px 14px;background:none;border:none;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* SECTION LABEL */
+.section-label{font-size:.7rem;font-weight:700;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;padding:10px 12px 4px;}
+
+/* DIC TABLE */
+.dic-container{padding:8px;overflow-x:auto;}
+table.dic-table{width:100%;border-collapse:collapse;font-size:.7rem;min-width:750px;}
+table.dic-table th{background:var(--card);padding:5px 4px;text-align:center;font-size:.62rem;border:1px solid var(--border);position:sticky;top:48px;white-space:nowrap;}
+table.dic-table td{padding:4px 3px;border:1px solid var(--border);text-align:center;vertical-align:middle;}
+table.dic-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.product-name{text-align:left!important;font-weight:600;color:var(--text);cursor:pointer;white-space:nowrap;padding-left:8px!important;}
+.product-name:hover{color:var(--accent);text-decoration:underline;}
+.group-row td{background:var(--card)!important;font-weight:700;color:var(--accent2);font-size:.7rem;text-align:left!important;padding-left:8px!important;}
+.cutoff{color:var(--muted);font-size:.62rem;}
+.count-cell{font-weight:700;min-width:28px;}
+.count-cell.has-value{color:#4ade80;}
+.var-cell{color:#f87171;font-size:.68rem;}
+.total-cell{font-weight:700;color:var(--accent2);}
+.del-cell{color:#60a5fa;}
+.forecast-cell{color:#a78bfa;}
+
+/* Day header colors */
+.day-header{font-size:.6rem;padding:4px 3px!important;line-height:1.3;}
+.day-mon{background:var(--mon)!important;color:#fff!important;}
+.day-tue{background:var(--tue)!important;color:#fff!important;}
+.day-wed{background:var(--wed)!important;color:#222!important;}
+.day-thu{background:var(--thu)!important;color:#222!important;}
+.day-fri{background:var(--fri)!important;color:#fff!important;}
+.day-sat{background:var(--sat)!important;color:#fff!important;}
+.day-sun{background:var(--sun)!important;color:#fff!important;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;transform:translateY(100%);transition:transform .3s ease;max-height:90vh;overflow-y:auto;}
+.modal-overlay.open .modal-box{transform:translateY(0);}
+.modal-product{font-size:1rem;font-weight:700;margin-bottom:4px;}
+.modal-cutoff{font-size:.75rem;color:var(--muted);margin-bottom:16px;}
+.day-input-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.day-input-block{border-radius:10px;overflow:hidden;cursor:pointer;}
+.day-input-label{padding:5px 8px;font-size:.62rem;font-weight:700;text-align:center;letter-spacing:1px;}
+.day-input-label.neutral{background:var(--card);color:var(--muted);}
+.day-input-field{width:100%;padding:8px;background:var(--bg);border:none;color:var(--text);font-size:1.1rem;font-weight:700;text-align:center;border-top:1px solid var(--border);min-height:38px;}
+.active-field-label{text-align:center;font-size:.75rem;color:var(--accent2);margin-bottom:8px;min-height:18px;}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
+.key{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:1.2rem;font-weight:600;text-align:center;cursor:pointer;color:var(--text);transition:background .15s;-webkit-tap-highlight-color:transparent;}
+.key:active{background:var(--accent);}
+.key.del{color:var(--accent);font-size:.9rem;}
+.key.clr{color:var(--muted);font-size:.9rem;}
+.modal-actions{display:flex;gap:10px;margin-top:8px;}
+.btn-cancel{flex:1;padding:12px;background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;font-size:.9rem;cursor:pointer;}
+.btn-save{flex:2;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;}
+
+/* DELIVERY TAB */
+.delivery-section{padding:12px;}
+.delivery-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:600px){.delivery-grid{grid-template-columns:repeat(3,1fr);}}
+.delivery-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.delivery-card h3{font-size:.8rem;font-weight:700;color:var(--accent);}
+.delivery-date-sub{font-size:.65rem;color:var(--muted);margin-bottom:10px;}
+.delivery-paste{width:100%;height:120px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.68rem;padding:8px;resize:none;font-family:monospace;}
+.delivery-paste:focus{outline:none;border-color:var(--accent);}
+.btn-extract{width:100%;margin-top:8px;padding:8px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:.75rem;cursor:pointer;transition:background .2s;}
+.btn-extract:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.delivery-result{font-size:.65rem;color:var(--green);margin-top:6px;min-height:16px;}
+
+/* PRODUCT SOLD TAB */
+.ps-section{padding:12px;}
+.ps-info{font-size:.75rem;color:var(--muted);margin-bottom:12px;line-height:1.6;}
+.ps-paste{width:100%;height:160px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.68rem;padding:10px;resize:none;font-family:monospace;margin-bottom:10px;}
+.ps-paste:focus{outline:none;border-color:var(--accent);}
+.ps-actions{display:flex;gap:10px;margin-bottom:16px;}
+.btn-calc{flex:2;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;}
+.btn-clear-ps{flex:1;padding:10px;background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.85rem;cursor:pointer;}
+.ps-result-info{font-size:.72rem;color:var(--green);margin-bottom:12px;min-height:18px;}
+table.ps-table{width:100%;border-collapse:collapse;font-size:.72rem;min-width:420px;}
+table.ps-table th{background:var(--card);padding:6px 8px;text-align:center;font-size:.65rem;border:1px solid var(--border);}
+table.ps-table td{padding:5px 8px;border:1px solid var(--border);text-align:center;}
+table.ps-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.ps-name{text-align:left!important;font-weight:600;}
+.ps-group{background:var(--card)!important;color:var(--accent2)!important;font-weight:700;text-align:left!important;padding-left:8px!important;}
+
+/* SALES TAB */
+.sales-section{padding:16px;}
+.sales-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.sales-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;}
+.sales-card label{font-size:.62rem;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+.sales-card input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;font-weight:700;padding:7px;text-align:right;}
+.sales-card input:focus{outline:none;border-color:var(--accent);}
+.sales-card .computed{font-size:1.1rem;font-weight:700;color:var(--accent2);padding:7px 0;}
+.btn-save-sales{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:8px;}
+.sales-note{font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center;}
+.btn-screenshot{width:100%;padding:16px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;text-align:left;transition:background .2s;}
+.btn-screenshot:hover{background:var(--accent);border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-box">
+    <h1>RR Dashboard</h1>
+    <p>Personal inventory & sales tracker</p>
+    <input type="password" id="pw-input" placeholder="••••••••" maxlength="20"/>
+    <button class="btn-primary" onclick="checkPw()">Enter</button>
+    <div class="gate-error" id="gate-error">Incorrect password</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <h1>RR Dashboard</h1>
+    <span class="date-display" id="today-display"></span>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dic')">DIC</button>
+    <button class="tab-btn" onclick="switchTab('prodsold')">Product Sold</button>
+    <button class="tab-btn" onclick="switchTab('delivery')">Delivery</button>
+    <button class="tab-btn" onclick="switchTab('sales')">Sales</button>
+    <button class="tab-btn" onclick="switchTab('print')">Print</button>
+  </div>
+
+  <!-- DIC TAB -->
+  <div id="tab-dic" class="tab-content active">
+    <div class="dic-container">
+      <div class="section-label">🎂 Cakes</div>
+      <table class="dic-table"><thead id="cake-thead"></thead><tbody id="cake-tbody"></tbody></table>
+      <div class="section-label" style="margin-top:16px">🍞 Breads & PBDs</div>
+      <table class="dic-table"><thead id="bread-thead"></thead><tbody id="bread-tbody"></tbody></table>
+      <div class="section-label" style="margin-top:16px">🍬 Polvoron</div>
+      <table class="dic-table"><thead id="polv-thead"></thead><tbody id="polv-tbody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- PRODUCT SOLD TAB -->
+  <div id="tab-prodsold" class="tab-content">
+    <div class="ps-section">
+      <div class="section-label" style="padding-left:0">Product Sold (15-day period)</div>
+      <p class="ps-info">Paste the exported sales report (.txt) below. ADQ = Qty ÷ 15 &nbsp;|&nbsp; MIN = ADQ × 120% &nbsp;|&nbsp; MAX = ADQ × 150%<br>Data is saved and persists between sessions.</p>
+      <textarea class="ps-paste" id="ps-paste" placeholder="Paste sales report here..."></textarea>
+      <div class="ps-actions">
+        <button class="btn-calc" onclick="calcADQ()">Calculate & Save</button>
+        <button class="btn-clear-ps" onclick="clearPS()">Clear</button>
+      </div>
+      <div class="ps-result-info" id="ps-result-info"></div>
+      <div style="overflow-x:auto">
+        <table class="ps-table" id="ps-table">
+          <thead><tr><th style="text-align:left">Product</th><th>Code</th><th>Qty Sold</th><th>ADQ</th><th>MIN</th><th>MAX</th></tr></thead>
+          <tbody id="ps-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELIVERY TAB -->
+  <div id="tab-delivery" class="tab-content">
+    <div class="delivery-section">
+      <div class="section-label" style="padding-left:0;margin-bottom:12px">Delivery Fill-in</div>
+      <div class="delivery-grid">
+        <div class="delivery-card">
+          <h3>Delivery</h3>
+          <div class="delivery-date-sub" id="del1-date"></div>
+          <textarea class="delivery-paste" id="paste-del1" placeholder="Paste delivery data here..."></textarea>
+          <button class="btn-extract" onclick="extractDel('del1')">Extract & Fill</button>
+          <div class="delivery-result" id="result-del1"></div>
+        </div>
+        <div class="delivery-card">
+          <h3>Delivery</h3>
+          <div class="delivery-date-sub" id="del2-date"></div>
+          <textarea class="delivery-paste" id="paste-del2" placeholder="Paste delivery data here..."></textarea>
+          <button class="btn-extract" onclick="extractDel('del2')">Extract & Fill</button>
+          <div class="delivery-result" id="result-del2"></div>
+        </div>
+        <div class="delivery-card">
+          <h3>Forecast</h3>
+          <div class="delivery-date-sub" id="del3-date"></div>
+          <textarea class="delivery-paste" id="paste-del3" placeholder="Paste delivery data here..."></textarea>
+          <button class="btn-extract" onclick="extractDel('del3')">Extract & Fill</button>
+          <div class="delivery-result" id="result-del3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALES TAB -->
+  <div id="tab-sales" class="tab-content">
+    <div class="sales-section">
+      <div class="section-label" style="padding-left:0">Today's Entry</div>
+      <div class="sales-grid" style="margin-top:10px">
+        <div class="sales-card"><label>Sales</label><input type="number" id="s-sales" placeholder="0"/></div>
+        <div class="sales-card"><label>TC</label><input type="number" id="s-tc" placeholder="0"/></div>
+        <div class="sales-card"><label>Waste</label><input type="number" id="s-waste" placeholder="0"/></div>
+        <div class="sales-card"><label>Discount</label><input type="number" id="s-discount" placeholder="0"/></div>
+        <div class="sales-card"><label>Grab</label><input type="number" id="s-grab" placeholder="0"/></div>
+        <div class="sales-card"><label>FPanda</label><input type="number" id="s-fpanda" placeholder="0"/></div>
+      </div>
+      <button class="btn-save-sales" onclick="saveSales()">Save Today's Sales</button>
+      <p class="sales-note" id="sales-save-note"></p>
+
+      <div class="section-label" style="padding-left:0;margin-top:16px">MTD</div>
+      <div class="sales-grid" style="margin-top:10px">
+        <div class="sales-card"><label>MTD TGT</label><input type="number" id="s-mtd-tgt" placeholder="0"/></div>
+        <div class="sales-card"><label>MTD LY</label><input type="number" id="s-mtd-ly" placeholder="0"/></div>
+        <div class="sales-card"><label>MTD</label><input type="number" id="s-mtd" placeholder="0"/></div>
+        <div class="sales-card"><label>AC</label><input type="number" id="s-ac" placeholder="0"/></div>
+        <div class="sales-card">
+          <label>ADS (auto)</label>
+          <div class="computed" id="ads-computed">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT TAB -->
+  <div id="tab-print" class="tab-content">
+    <div style="padding:20px">
+      <div class="section-label" style="padding-left:0;margin-bottom:16px">Save as PNG</div>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:24px;line-height:1.6">Tap a button to capture and download a PNG of that section. Make sure you've entered your counts in the DIC tab first.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:340px">
+        <button class="btn-screenshot" onclick="takeScreenshot('cakes')">🎂&nbsp; Save Cakes + Icing</button>
+        <button class="btn-screenshot" onclick="takeScreenshot('breads')">🍞&nbsp; Save Breads + Polvoron</button>
+      </div>
+      <div id="screenshot-status" style="margin-top:16px;font-size:.75rem;color:var(--green);min-height:20px"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-product" id="modal-product-name"></div>
+    <div class="modal-cutoff" id="modal-cutoff"></div>
+    <div class="day-input-row" id="modal-day-inputs"></div>
+    <div class="active-field-label" id="active-field-label">Tap a field above to edit</div>
+    <div class="keypad">
+      <div class="key" onclick="kp('1')">1</div><div class="key" onclick="kp('2')">2</div><div class="key" onclick="kp('3')">3</div>
+      <div class="key" onclick="kp('4')">4</div><div class="key" onclick="kp('5')">5</div><div class="key" onclick="kp('6')">6</div>
+      <div class="key" onclick="kp('7')">7</div><div class="key" onclick="kp('8')">8</div><div class="key" onclick="kp('9')">9</div>
+      <div class="key clr" onclick="kp('clr')">CLR</div><div class="key" onclick="kp('0')">0</div><div class="key del" onclick="kp('del')">⌫</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATE HELPERS ──────────────────────────────────────────────
+const TODAY = new Date();
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW_NAMES = ['sun','mon','tue','wed','thu','fri','sat'];
+const DOW_BG = {sun:'#e67e22',mon:'#2980b9',tue:'#6d4c41',wed:'#ecf0f1',thu:'#f1c40f',fri:'#8e44ad',sat:'#27ae60'};
+const DOW_FG = {sun:'#fff',mon:'#fff',tue:'#fff',wed:'#222',thu:'#222',fri:'#fff',sat:'#fff'};
+
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function fmtShort(d){return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
+function fmtMed(d){return `${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}`;}
+function fmtFull(d){return `${DAYS_SHORT[d.getDay()]} ${fmtShort(d)}`;}
+function dowClass(d){return 'day-'+DOW_NAMES[d.getDay()];}
+function dowBg(d){return DOW_BG[DOW_NAMES[d.getDay()]];}
+function dowFg(d){return DOW_FG[DOW_NAMES[d.getDay()]];}
+
+// Cakes: expiry dates
+// Day1=+7, Day2=+6, Day3=+5, Day4=+4, LA=today
+const CAKE_DAYS = [
+  {key:'d1',label:'Day 1',offset:7},
+  {key:'d2',label:'Day 2',offset:6},
+  {key:'d3',label:'Day 3',offset:5},
+  {key:'d4',label:'Day 4',offset:4},
+  {key:'la',label:'LA',  offset:0},
+];
+// Breads: Day1=+6, Day2=+5, Day3=+4, Day4=+3, LA=today
+const BREAD_DAYS = [
+  {key:'d1',label:'Day 1',offset:6},
+  {key:'d2',label:'Day 2',offset:5},
+  {key:'d3',label:'Day 3',offset:4},
+  {key:'d4',label:'Day 4',offset:3},
+  {key:'la',label:'LA',  offset:0},
+];
+
+// ── PRODUCT LISTS ─────────────────────────────────────────────
+const CAKE_PRODUCTS = [
+  {group:'JUNIOR'},
+  {code:'BF JR',   cutoff:'-3 days'},{code:'CBC JR',  cutoff:'-3 days'},
+  {code:'UC JR',   cutoff:'-3 days'},{code:'MBC JR',  cutoff:'-3 days'},
+  {code:'TCC JR',  cutoff:'-3 days'},
+  {group:'PETITE'},
+  {code:'BF PT',   cutoff:'-3 days'},{code:'CBC PT',  cutoff:'-3 days'},
+  {code:'TCC PT',  cutoff:'-3 days'},{code:'MBC PT',  cutoff:'-3 days'},
+  {code:'MDLC PT', cutoff:'-3 days'},{code:'UC PT',   cutoff:'-3 days'},
+  {group:'REGULAR'},
+  {code:'BF REG',  cutoff:'-3 days'},{code:'CBC REG', cutoff:'-3 days'},
+  {code:'CHBC REG',cutoff:'-3 days'},{code:'CM REG',  cutoff:'-3 days'},
+  {code:'MBC REG', cutoff:'-3 days'},{code:'MDLC REG',cutoff:'-3 days'},
+  {code:'TCC REG', cutoff:'-3 days'},{code:'UC REG',  cutoff:'-3 days'},
+  {group:'ROLLS'},
+  {code:'CRL',     cutoff:'-3 days'},{code:'MCRL F 1',cutoff:'-3 days'},
+  {code:'MOCRLF',  cutoff:'-3 days'},{code:'UCRL F',  cutoff:'-3 days'},
+  {code:'TCRL F',  cutoff:'-3 days'},{code:'TCRL H',  cutoff:'-3 days'},
+  {group:'DEDICATION CAKES'},
+  {code:'RDC JR',  cutoff:'-3 days'},{code:'CDC JR',  cutoff:'-3 days'},
+  {code:'CDC MED', cutoff:'-3 days'},{code:'CDC L',   cutoff:'-3 days'},
+  {code:'MDC JR',  cutoff:'-3 days'},{code:'MDC MED', cutoff:'-3 days'},
+  {code:'CADC JR 1',cutoff:'-3 days'},{code:'CMDC JR',cutoff:'-3 days'},
+  {code:'CMDC MED',cutoff:'-3 days'},{code:'SCHDC JR',cutoff:'-3 days'},
+  {code:'SCHDC MED',cutoff:'-3 days'},
+  {group:'ICING'},
+  {code:'BIL',cutoff:'-1 day'},{code:'RIL',cutoff:'-1 day'},
+  {code:'WIL',cutoff:'-1 day'},{code:'HALF CHERRIES',cutoff:''},
+  {code:'BUTTER PUTO',cutoff:''},
+];
+
+const BREAD_PRODUCTS = [
+  {group:'PBDs'},
+  {code:'BCR-S',   cutoff:'-2 days'},{code:'BCRLF',   cutoff:'-2 days'},
+  {code:'BM',      cutoff:'-2 days'},{code:'CHCS',    cutoff:'-2 days'},
+  {code:'CHM',     cutoff:'-2 days'},{code:'CPBCS',   cutoff:'-2 days'},
+  {code:'CRK',     cutoff:'-2 days'},{code:'DDC SLC', cutoff:'-2 days'},
+  {code:'ENS',     cutoff:'-2 days'},{code:'MC-L',    cutoff:'-2 days'},
+  {code:'MC-S',    cutoff:'-2 days'},{code:'MCRN',    cutoff:'-2 days'},
+  {code:'MM',      cutoff:'-2 days'},{code:'MMC SLC', cutoff:'-2 days'},
+  {code:'RVCS',    cutoff:'-2 days'},{code:'SCS',     cutoff:'-2 days'},
+  {code:'Tai-S',   cutoff:'-2 days'},{code:'TAILF',   cutoff:'-2 days'},
+  {code:'UM',      cutoff:'-2 days'},{code:'UMC SLC', cutoff:'-2 days'},
+  {code:'UBENS',   cutoff:'-1 day'},
+  {group:'CCS / FB'},
+  {code:'CCS',     cutoff:'-3 days'},{code:'FB',      cutoff:'-3 days'},
+];
+
+const POLV_PRODUCTS = [
+  {group:'POLVORON'},
+  {code:'PVNPE 8',cutoff:'-5 days'},{code:'PVNPN 8',  cutoff:'-5 days'},
+  {code:'PVNCL 10',cutoff:'-5 days'},{code:'PVNCL 16', cutoff:'-5 days'},
+  {code:'PVNASTD15',cutoff:'-5 days'},{code:'PVNASTD22',cutoff:'-5 days'},
+];
+
+// ── ADQ MAPPING from sales report product name → DIC code ────
+// Format: [salesReportKeyword (lowercase), dicCode, packSize]
+const ADQ_MAP = [
+  // Cakes Junior
+  ['black forest junior cake',    'BF JR',   1],
+  ['chocolate bliss junior',      'CBC JR',  1],
+  ['ube bloom cake junior',       'UC JR',   1],
+  ['mango blossom cake junior',   'MBC JR',  1],
+  ['tiramisu cloud junior',       'TCC JR',  1],
+  // Cakes Petite
+  ['black forest petite',         'BF PT',   1],
+  ['chocolate bliss petite',      'CBC PT',  1],
+  ['tiramisu cloud petite',       'TCC PT',  1],
+  ['mango blossom cake petite',   'MBC PT',  1],
+  ['mochaccino delight petite',   'MDLC PT', 1],
+  ['ube bloom cake petite',       'UC PT',   1],
+  ['ube bloom petite',            'UC PT',   1],
+  ['caramel delight petite',      'UC PT',   0],
+  // Cakes Regular
+  ['black forest regular',        'BF REG',  1],
+  ['chocolate bliss regular',     'CBC REG', 1],
+  ['chocolate hazelnut bliss',    'CHBC REG',1],
+  ['cm reg-chocolate mousse',     'CM REG',  1],
+  ['mango blossom cake regular',  'MBC REG', 1],
+  ['mochaccino delight regular',  'MDLC REG',1],
+  ['tmc reg-tiramisu',            'TCC REG', 1],
+  ['ube bloom cake regular',      'UC REG',  1],
+  ['uc reg-ube bloom',            'UC REG',  1],
+  // Rolls
+  ['triple chocolate roll full',  'TCRL F',  1],
+  ['triple chocolate roll half',  'TCRL H',  1],
+  ['chocolate roll full',         'CRL',     1],
+  ['milky caramel roll full',     'MCRL F 1',1],
+  ['mocrl full-mocha roll',       'MOCRLF',  1],
+  ['mocha roll',                  'MOCRLF',  1],
+  ['ucrl full-ube and cream roll','UCRL F',  1],
+  // Dedication Cakes
+  ['round rainbow chocolate dedication','RDC JR',1],
+  ['round rainbow dedication',    'RDC JR',  1],
+  // Dedication Cakes
+  ['round rainbow chocolate dedication','RDC JR',1],
+  ['round rainbow dedication',    'RDC JR',  1],
+  ['cdc 12x12',                   'CDC L',   1],
+  ['cdc 8x12',                    'CDC MED', 1],
+  ['round chocolate dedication',  'CDC JR',  1],
+  ['mdc8x12',                     'MDC MED', 1],
+  ['round mocha dedication',      'MDC JR',  1],
+  ['round caramel dedication',    'CADC JR 1',1],
+  ['supreme caramel-mocha dedication cake','CMDC JR',1],
+  ['supreme caramel-mocha dc 8x12','CMDC MED',1],
+  ['round supreme chocolate-caramel dc 8','SCHDC JR',1],
+  ['supreme chocolate-caramel dc 8x12','SCHDC MED',1],
+  // Breads/PBDs
+  ['banana crunch(2014)',         'BCR-S',   1],
+  ['banana crunch loaf',          'BCRLF',   1],
+  ['butter mamon(2014) pack 10s', 'BM',      10],
+  ['butter mamon pack 5s',        'BM',      5],
+  ['butter mamon(2014)',          'BM',      1],
+  ['choco cake slice 2024',       'CHCS',    1],
+  ['cheesy mamon(2019)',          'CHM',     1],
+  ['choco peanut butter cake slice','CPBCS', 1],
+  ['choco crinkles(2014)',        'CRK',     1],
+  ['double dutch cake slice',     'DDC SLC', 1],
+  ['ensaimada pack 8s',           'ENS',     8],
+  ['ensaimada 4s pack',           'ENS',     4],
+  ['cheesy ensaimada pbd box 12s','ENS',     12],
+  ['cheesy ensaimada - luzon',    'ENS',     1],
+  ['cheesy ensaimada(mc)',        'ENS',     1],
+  ['moist chocolate loaf',        'MC-L',    1],
+  ['moist choco slice(2014)',     'MC-S',    1],
+  ['macaroons(2014)',             'MCRN',    1],
+  ['mocha mamon(2014)',           'MM',      1],
+  ['mocha marble cake slice',     'MMC SLC', 1],
+  ['red velvet cake slice',       'RVCS',    1],
+  ['strawberry cake slice',       'SCS',     1],
+  ['taisan slice',                'Tai-S',   1],
+  ['taisan loaf',                 'TAILF',   1],
+  ['ube mamon(2014)',             'UM',      1],
+  ['ube marble cake slice',       'UMC SLC', 1],
+  ['ube ensaimada',               'UBENS',   1],
+  ['chiffon cake slice',          'CCS',     1],
+  ['fudgy brownies',              'FB',      1],
+  // Polvoron
+  ['peanut polvoron 8s',          'PVNPE 8', 1],
+  ['pinipig polvoron 8s',         'PVNPN 8', 1],
+  ['polvoron classic 10s',        'PVNCL 10',1],
+  ['classic polvoron 16s',        'PVNCL 16',1],
+  ['polvoron assorted 15s',       'PVNASTD15',1],
+  ['polvoron assorted 22s',       'PVNASTD22',1],
+  // Accessories
+  ['butter puto luzon pack 10s',  'BUTTER PUTO',10],
+];
+
+// Skip these keywords entirely
+const ADQ_SKIP = ['assorted cake slice','assorted ensaimada 5s','assorted mamon pack','assorted pbd','assorted pbdbox',
+  'candle','topper','bottled water','gift check','food sales','handling fee','free bread','free fudgy',
+  'caramel delight petite(free)','cake + butter mamon','cake,reg','cake,jr','cake,petite','cdlc reg',
+  'round rainbow','sharetreats','princess theme','rainbow dino','raisin bread'];
+
+// ── DELIVERY MAPPING ─────────────────────────────────────────
+const DEL_MAP = [
+  ['cake,dc,large,2022 chocolate,12x12,cdc',    'CDC L'],
+  ['cake,dc,med,2022 chocolate,8x12,cdc',       'CDC MED'],
+  ['cake,dc,med,2023 mocha,8x12,mdc',           'MDC MED'],
+  ['cake,dc,medium,caramel,cadc,8x12',          'CADC JR 1'],
+  ['cake,dc,medium,chococaramel,schdc,8x12',    'SCHDC MED'],
+  ['cake,dc,medium,caramelmocha,cmdc,8x12',     'CMDC MED'],
+  ['cake,dc,round,chocolate,8dia,cdc',          'CDC JR'],
+  ['cake,dc,round,mocha,mdc,8dia',              'MDC JR'],
+  ['cake,dc,round,caramel,cadc,8dia',           'CADC JR 1'],
+  ['cake,dc,round,chococaramel,schdc,8dia',     'SCHDC JR'],
+  ['cake,dc,round,caramelmocha,cmdc,8dia',      'CMDC JR'],
+  ['cake,dc,round,choco rainbow',               'RDC JR'],
+  ['cake,reg,black forest',                     'BF REG'],
+  ['cake,reg,chocolate cake',                   'CBC REG'],
+  ['cake,reg,ube bloom cake 2026',              'UC REG'],
+  ['cake,reg,tiramisu cloud cake',              'TCC REG'],
+  ['cake,reg,choco mousse',                     'CM REG'],
+  ['cake,reg,mango blossom',                    'MBC REG'],
+  ['cake,reg,mochaccino delight',               'MDLC REG'],
+  ['cake,reg,chocolate hazelnut',               'CHBC REG'],
+  ['cake,jr,black forest',                      'BF JR'],
+  ['cake,jr,chocolate cake',                    'CBC JR'],
+  ['cake,jr,ube bloom cake 2026',               'UC JR'],
+  ['cake,jr,mango blossom',                     'MBC JR'],
+  ['cake,jr,tiramisu cloud cake',               'TCC JR'],
+  ['cake,petite,black forest',                  'BF PT'],
+  ['cake,petite,chocolate bliss',               'CBC PT'],
+  ['cake,petite,mango blossom',                 'MBC PT'],
+  ['cake,petite,ube bloom cake 2026',           'UC PT'],
+  ['cake,petite,mochaccino delight',            'MDLC PT'],
+  ['cake,petite,tiramisu cloud cake',           'TCC PT'],
+  ['cake,full,tcrl 2025',                       'TCRL F'],
+  ['cake,full,crl 2025',                        'CRL'],
+  ['cake,full,mcrl 2024',                       'MCRL F 1'],
+  ['cake,full,mocha roll',                      'MOCRLF'],
+  ['cake,full,ube roll',                        'UCRL F'],
+  ['cake,half,tcrl 2025',                       'TCRL H'],
+  ['pastry,ensai,imprvd',                       'ENS'],
+  ['pastry,ensai,ube',                          'UBENS'],
+  ['pastry,butter mamon,2014',                  'BM'],
+  ['pastry,cheesy mamon new',                   'CHM'],
+  ['pastry,ube mamon2014',                      'UM'],
+  ['pastry,mocha mamon2014',                    'MM'],
+  ['pastry, taisan, slice',                     'Tai-S'],
+  ['pastry,taisan loaf',                        'TAILF'],
+  ['pastry, moist choco, loaf',                 'MC-L'],
+  ['pastry,moist choco slice2014',              'MC-S'],
+  ['pastry, banana crunch, loaf',               'BCRLF'],
+  ['pastry,banana crunch2014',                  'BCR-S'],
+  ['pastry,choco crinkles2014',                 'CRK'],
+  ['pastry,macaroons2014',                      'MCRN'],
+  ['pastry,strawberry cake slice',              'SCS'],
+  ['pastry,choco-peanut butter cake slice',     'CPBCS'],
+  ['pastry,double dutch cake slice new',        'DDC SLC'],
+  ['pastry,chiffon cake slice new',             'CCS'],
+  ['pastry,choco cake slice new',               'CHCS'],
+  ['pastry,ube marble cake slice new',          'UMC SLC'],
+  ['pastry,mocha marble cake slice new',        'MMC SLC'],
+  ['pastry,red velvet slice new',               'RVCS'],
+  ['pastry,classic white bread,18pcs',          'BCR-S'],
+  ['pastry,classic white bread,9pcs',           'BCRLF'],
+  ['pastry,bread rolls,choco',                  'CHM'],
+  ['pastry, brownies',                          'FB'],
+  ['pastry,butter puto',                        'BUTTER PUTO'],
+  ['polvoron,assorted,15pcs',                   'PVNASTD15'],
+  ['polvoron,assorted,22pcs',                   'PVNASTD22'],
+  ['polvoron,classic,10pcs',                    'PVNCL 10'],
+  ['polvoron,classic,16pcs',                    'PVNCL 16'],
+  ['polvoron,peanut',                           'PVNPE 8'],
+  ['polvoron,pinipig',                          'PVNPN 8'],
+  ['pastry,icing,bc, lettering,blue',           'BIL'],
+  ['pastry,icing,bc,lettering,red',             'RIL'],
+  ['pastry,icing,bc,lettering,white',           'WIL'],
+  ['accessory,half maraschino',                 'HALF CHERRIES'],
+];
+
+// ── STATE ─────────────────────────────────────────────────────
+const counts = {cake:{},bread:{},polv:{}};
+const delData = {del1:{},del2:{},del3:{}};
+let adqData = {}; // code → {qty, adq, min, max}
+
+// ── PASSWORD ─────────────────────────────────────────────────
+function checkPw(){
+  if(document.getElementById('pw-input').value==='Max0528'){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    init();
+  } else {
+    document.getElementById('gate-error').style.display='block';
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw();});
+
+// ── TAB SWITCH ───────────────────────────────────────────────
+function switchTab(name){
+  const names=['dic','prodsold','delivery','sales','print'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── SCREENSHOT ───────────────────────────────────────────────
+async function takeScreenshot(type){
+  const status=document.getElementById('screenshot-status');
+  status.textContent='Preparing...';
+
+  // Load html2canvas if not loaded
+  if(!window.html2canvas){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload=res; s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Show DIC tab temporarily
+  const prevActive=document.querySelector('.tab-content.active');
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-dic').classList.add('active');
+
+  await new Promise(r=>setTimeout(r,100));
+
+  // Determine which elements to capture
+  let els=[];
+  if(type==='cakes'){
+    els=[
+      document.querySelector('.section-label'),  // 🎂 Cakes label
+      document.getElementById('cake-table'),
+    ];
+  } else {
+    els=[
+      ...document.querySelectorAll('.section-label'),  // get breads + polv labels
+      document.getElementById('bread-table'),
+      document.getElementById('polv-table'),
+    ];
+    // Filter to just breads and polvoron labels (indices 1 and 2)
+    els=Array.from(document.querySelectorAll('.section-label,.dic-table')).filter((_,i)=>i>=2);
+  }
+
+  // Create a wrapper div to capture
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText='position:fixed;top:-9999px;left:0;background:#1a1a2e;padding:16px;width:'+document.getElementById('cake-table').scrollWidth+'px';
+  // Add date header
+  const header=document.createElement('div');
+  header.style.cssText='color:#f5a623;font-size:13px;font-weight:700;margin-bottom:8px;font-family:Segoe UI,sans-serif;';
+  header.textContent='RR Dashboard — '+document.getElementById('today-display').textContent;
+  wrapper.appendChild(header);
+
+  if(type==='cakes'){
+    const lbl=document.createElement('div');
+    lbl.style.cssText='color:#f5a623;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:Segoe UI,sans-serif;';
+    lbl.textContent='🎂 CAKES';
+    wrapper.appendChild(lbl);
+    wrapper.appendChild(document.getElementById('cake-table').cloneNode(true));
+  } else {
+    const lbl1=document.createElement('div');
+    lbl1.style.cssText='color:#f5a623;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:8px 0 6px;font-family:Segoe UI,sans-serif;';
+    lbl1.textContent='🍞 BREADS & PBDs';
+    wrapper.appendChild(lbl1);
+    wrapper.appendChild(document.getElementById('bread-table').cloneNode(true));
+    const lbl2=lbl1.cloneNode(false);
+    lbl2.textContent='🍬 POLVORON';
+    wrapper.appendChild(lbl2);
+    wrapper.appendChild(document.getElementById('polv-table').cloneNode(true));
+  }
+  document.body.appendChild(wrapper);
+
+  try{
+    status.textContent='Capturing...';
+    const canvas=await html2canvas(wrapper,{
+      backgroundColor:'#1a1a2e',
+      scale:2,
+      useCORS:true,
+      logging:false,
+    });
+    const link=document.createElement('a');
+    const dateStr=fmtShort(TODAY).replace('.','');
+    link.download=`DIC_${type}_${dateStr}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    status.textContent='✓ Saved as DIC_'+type+'_'+dateStr+'.png';
+  } catch(e){
+    status.textContent='Error: '+e.message;
+  } finally {
+    document.body.removeChild(wrapper);
+    // Restore previous tab
+    prevActive.classList.add('active');
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+function init(){
+  const d=TODAY;
+  document.getElementById('today-display').textContent=`${DAYS_SHORT[d.getDay()]} ${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  // Delivery dates
+  document.getElementById('del1-date').textContent=fmtFull(addDays(d,1));
+  document.getElementById('del2-date').textContent=fmtFull(addDays(d,2));
+  document.getElementById('del3-date').textContent=fmtFull(addDays(d,3));
+  // Load saved ADQ
+  loadADQ();
+  // Build tables
+  buildTable('cake',CAKE_PRODUCTS,CAKE_DAYS,true);
+  buildTable('bread',BREAD_PRODUCTS,BREAD_DAYS,false);
+  buildTable('polv',POLV_PRODUCTS,BREAD_DAYS,false);
+  // Load saved sales
+  loadSales();
+  // Render PS table
+  renderPSTable();
+}
+
+// ── BUILD TABLE ──────────────────────────────────────────────
+function getADQ(code){
+  const d=adqData[code];
+  if(!d) return {adq:0,min:0,max:0};
+  return d;
+}
+
+// Color is based on day-of-week sequence starting from TODAY
+// LA=today, Day4=today+1, Day3=today+2, Day2=today+3, Day1=today+4
+const COLOR_OFFSETS={la:0,d4:1,d3:2,d2:3,d1:4};
+
+function dayColor(key){return addDays(TODAY,COLOR_OFFSETS[key]||0);}
+
+function buildTable(tid,products,days,colorDays){
+  const thead=document.getElementById(tid+'-thead');
+  const tbody=document.getElementById(tid+'-tbody');
+  // Header
+  let th=`<tr><th>Product</th><th>Cut</th><th>ADQ</th><th>MIN</th><th>MAX</th>`;
+  // Show Day1..Day4..LA (reversed = d1 leftmost)
+  [...days].reverse().forEach(day=>{
+    const dt=addDays(TODAY,day.offset); // expiry date for display
+    const colorDt=dayColor(day.key);   // color based on sequence from today
+    const cls=(colorDays)?dowClass(colorDt):'';
+    const dateStr=fmtShort(dt);
+    th+=`<th class="day-header ${cls}">${day.label}<br><span style="font-weight:400;font-size:.56rem">${dateStr}</span></th>`;
+  });
+  th+=`<th>VAR</th><th>TOTAL</th><th>Del<br><span style="font-weight:400;font-size:.55rem">${fmtShort(addDays(TODAY,1))}</span></th><th>Del<br><span style="font-weight:400;font-size:.55rem">${fmtShort(addDays(TODAY,2))}</span></th><th>Forecast<br><span style="font-weight:400;font-size:.55rem">${fmtShort(addDays(TODAY,3))}</span></th></tr>`;
+  thead.innerHTML=th;
+  // Body
+  let html='';
+  products.forEach(p=>{
+    if(p.group){html+=`<tr class="group-row"><td colspan="15">${p.group}</td></tr>`;return;}
+    if(!counts[tid][p.code])counts[tid][p.code]={};
+    const c=counts[tid][p.code];
+    const {adq,min,max}=getADQ(p.code);
+    const sc=p.code.replace(/[\s]/g,'_').replace(/[^a-zA-Z0-9_\-]/g,'X');
+    html+=`<tr id="row-${tid}-${sc}">
+      <td class="product-name" onclick="openModal('${tid}','${p.code.replace(/'/g,"\\'")}','${p.cutoff}')">${p.code}</td>
+      <td class="cutoff">${p.cutoff}</td>
+      <td id="adq-${tid}-${sc}">${adq?adq.toFixed(1):''}</td>
+      <td id="min-${tid}-${sc}">${min?min.toFixed(1):''}</td>
+      <td id="max-${tid}-${sc}">${max?max.toFixed(1):''}</td>`;
+    ['d1','d2','d3','d4','la'].forEach(key=>{
+      const val=c[key]!==undefined?c[key]:'';
+      html+=`<td class="count-cell${val!==''&&val!==0?' has-value':''}" id="cell-${tid}-${sc}-${key}">${val}</td>`;
+    });
+    const tot=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(c[k])||0),0);
+    html+=`<td class="var-cell" id="var-${tid}-${sc}">${c.var||''}</td>
+      <td class="total-cell" id="tot-${tid}-${sc}">${tot||''}</td>
+      <td class="del-cell" id="del1-${tid}-${sc}">${delData.del1[p.code]||''}</td>
+      <td class="del-cell" id="del2-${tid}-${sc}">${delData.del2[p.code]||''}</td>
+      <td class="forecast-cell" id="del3-${tid}-${sc}">${delData.del3[p.code]||''}</td>
+    </tr>`;
+  });
+  tbody.innerHTML=html;
+}
+
+function safeCode(code){return code.replace(/[\s]/g,'_').replace(/[^a-zA-Z0-9_\-]/g,'X');}
+
+// ── MODAL ────────────────────────────────────────────────────
+let MS={tid:null,code:null,active:null,vals:{}};
+
+function openModal(tid,code,cutoff){
+  MS={tid,code,active:null,vals:{}};
+  const existing=counts[tid][code]||{};
+  ['d1','d2','d3','d4','la','var'].forEach(k=>MS.vals[k]=existing[k]??'');
+  document.getElementById('modal-product-name').textContent=code;
+  document.getElementById('modal-cutoff').textContent=cutoff;
+  const days=tid==='cake'?CAKE_DAYS:BREAD_DAYS;
+  const colored=tid==='cake';
+  let html='';
+  ['d1','d2','d3','d4'].forEach(key=>{
+    const dayObj=days.find(d=>d.key===key);
+    const dt=addDays(TODAY,dayObj.offset); // expiry date
+    const colorDt=dayColor(key);           // color sequence from today
+    const bg=colored?dowBg(colorDt):'#0f3460';
+    const fg=colored?dowFg(colorDt):'#fff';
+    html+=`<div class="day-input-block" onclick="setActive('${key}')">
+      <div class="day-input-label" style="background:${bg};color:${fg}">${dayObj.label} · ${fmtShort(dt)}</div>
+      <div class="day-input-field" id="mi-${key}">${MS.vals[key]}</div></div>`;
+  });
+  const laDt=addDays(TODAY,0);
+  const laColorDt=dayColor('la');
+  const laBg=colored?dowBg(laColorDt):'#0f3460';
+  const laFg=colored?dowFg(laColorDt):'#fff';
+  html+=`<div class="day-input-block" onclick="setActive('la')">
+    <div class="day-input-label" style="background:${laBg};color:${laFg}">LA · ${fmtShort(laDt)}</div>
+    <div class="day-input-field" id="mi-la">${MS.vals.la}</div></div>`;
+  html+=`<div class="day-input-block" onclick="setActive('var')">
+    <div class="day-input-label neutral">VAR</div>
+    <div class="day-input-field" id="mi-var">${MS.vals.var}</div></div>`;
+  document.getElementById('modal-day-inputs').innerHTML=html;
+  document.getElementById('active-field-label').textContent='Tap a field above to edit';
+  document.getElementById('modal').classList.add('open');
+}
+
+function setActive(key){
+  MS.active=key;
+  const labels={d1:'Day 1',d2:'Day 2',d3:'Day 3',d4:'Day 4',la:'LA',var:'VAR'};
+  document.getElementById('active-field-label').textContent='Editing: '+labels[key];
+  document.querySelectorAll('.day-input-field').forEach(el=>el.style.background='');
+  const el=document.getElementById('mi-'+key);
+  if(el)el.style.background='rgba(233,69,96,.18)';
+}
+
+function kp(k){
+  if(!MS.active)return;
+  let v=String(MS.vals[MS.active]??'');
+  if(k==='del')v=v.slice(0,-1);
+  else if(k==='clr')v='';
+  else v+=k;
+  MS.vals[MS.active]=v===''?'':Number(v);
+  const el=document.getElementById('mi-'+MS.active);
+  if(el)el.textContent=v;
+}
+
+function saveModal(){
+  const{tid,code}=MS;
+  if(!counts[tid][code])counts[tid][code]={};
+  Object.assign(counts[tid][code],MS.vals);
+  updateRow(tid,code);
+  closeModal();
+}
+
+function updateRow(tid,code){
+  const sc=safeCode(code);
+  const c=counts[tid][code];
+  ['d1','d2','d3','d4','la'].forEach(key=>{
+    const el=document.getElementById(`cell-${tid}-${sc}-${key}`);
+    if(el){const v=(c[key]!==undefined&&c[key]!=='')? c[key]:'';el.textContent=v;el.classList.toggle('has-value',v!==''&&Number(v)!==0);}
+  });
+  const tot=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(c[k])||0),0);
+  const te=document.getElementById(`tot-${tid}-${sc}`);if(te)te.textContent=tot>0?tot:'';
+  const ve=document.getElementById(`var-${tid}-${sc}`);if(ve)ve.textContent=c.var||'';
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
+
+// ── DELIVERY EXTRACTION ──────────────────────────────────────
+function extractDel(slot){
+  const raw=document.getElementById('paste-'+slot).value;
+  if(!raw.trim())return;
+  const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  let matched=0,unmatched=[];
+  lines.forEach(line=>{
+    const parts=line.split('\t');
+    if(parts.length<4)return;
+    const name=parts[0].trim();
+    const qty=parseInt(parts[3].replace(/,/g,''));
+    if(isNaN(qty))return;
+    const lower=name.toLowerCase();
+    let found=null;
+    for(const[kw,code] of DEL_MAP){if(lower.includes(kw.toLowerCase())){found=code;break;}}
+    if(found){
+      delData[slot][found]=qty;
+      matched++;
+      ['cake','bread','polv'].forEach(tid=>{
+        const sc=safeCode(found);
+        const el=document.getElementById(`${slot}-${tid}-${sc}`);
+        if(el){el.textContent=qty;el.style.color=slot==='del3'?'#a78bfa':'#60a5fa';}
+      });
+    } else {
+      if(!unmatched.includes(name.substring(0,25)))unmatched.push(name.substring(0,25));
+    }
+  });
+  document.getElementById('result-'+slot).textContent=`✓ ${matched} matched${unmatched.length?` · ${unmatched.length} unmatched`:''}`;
+}
+
+// ── PRODUCT SOLD / ADQ ───────────────────────────────────────
+function loadADQ(){
+  try{
+    const saved=localStorage.getItem('rr_adq');
+    if(saved)adqData=JSON.parse(saved);
+  }catch(e){}
+}
+
+function saveADQStorage(){
+  try{localStorage.setItem('rr_adq',JSON.stringify(adqData));}catch(e){}
+}
+
+function calcADQ(){
+  const raw=document.getElementById('ps-paste').value;
+  if(!raw.trim()){document.getElementById('ps-result-info').textContent='Nothing to parse.';return;}
+  const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  const totals={};
+
+  lines.forEach(line=>{
+    const parts=line.split('\t');
+    if(parts.length<3)return;
+    const name=parts[0].trim();
+    const qtyStr=parts[1]||parts[2]||'';
+    const qty=parseInt(qtyStr.replace(/,/g,''));
+    if(isNaN(qty)||qty===0)return;
+    const lower=name.toLowerCase();
+    // Skip?
+    if(ADQ_SKIP.some(s=>lower.includes(s)))return;
+    // Category row check (no number in col 1 position)
+    if(parts.length===6&&isNaN(parseInt(parts[1])))return;
+
+    // Find mapping
+    for(const[kw,code,pack] of ADQ_MAP){
+      if(pack===0)continue;
+      if(lower.includes(kw.toLowerCase())){
+        if(!totals[code])totals[code]=0;
+        totals[code]+=qty*(pack||1);
+        return;
+      }
+    }
+  });
+
+  // Build adqData
+  adqData={};
+  Object.entries(totals).forEach(([code,qty])=>{
+    const adq=qty/15;
+    adqData[code]={qty,adq,min:adq*1.2,max:adq*1.5};
+  });
+
+  saveADQStorage();
+  renderPSTable();
+  // Update DIC tables
+  ['cake','bread','polv'].forEach(tid=>{
+    const products=tid==='cake'?CAKE_PRODUCTS:tid==='bread'?BREAD_PRODUCTS:POLV_PRODUCTS;
+    products.forEach(p=>{
+      if(p.group)return;
+      const sc=safeCode(p.code);
+      const{adq,min,max}=getADQ(p.code);
+      const ae=document.getElementById(`adq-${tid}-${sc}`);if(ae)ae.textContent=adq?adq.toFixed(1):'';
+      const mie=document.getElementById(`min-${tid}-${sc}`);if(mie)mie.textContent=min?min.toFixed(1):'';
+      const mae=document.getElementById(`max-${tid}-${sc}`);if(mae)mae.textContent=max?max.toFixed(1):'';
+    });
+  });
+  const n=Object.keys(adqData).length;
+  document.getElementById('ps-result-info').textContent=`✓ ${n} products calculated and saved.`;
+}
+
+function clearPS(){
+  if(!confirm('Clear saved ADQ data?'))return;
+  adqData={};
+  saveADQStorage();
+  document.getElementById('ps-paste').value='';
+  document.getElementById('ps-result-info').textContent='Cleared.';
+  renderPSTable();
+}
+
+function renderPSTable(){
+  const tbody=document.getElementById('ps-tbody');
+  const allProducts=[...CAKE_PRODUCTS,...BREAD_PRODUCTS,...POLV_PRODUCTS];
+  let html='';
+  allProducts.forEach(p=>{
+    if(p.group){html+=`<tr><td class="ps-group" colspan="6">${p.group}</td></tr>`;return;}
+    const d=adqData[p.code];
+    html+=`<tr><td class="ps-name">${p.code}</td><td style="color:var(--muted);font-size:.65rem">${p.code}</td>
+      <td>${d?d.qty:''}</td><td>${d?d.adq.toFixed(2):''}</td>
+      <td>${d?d.min.toFixed(2):''}</td><td>${d?d.max.toFixed(2):''}</td></tr>`;
+  });
+  tbody.innerHTML=html;
+}
+
+// ── SALES ────────────────────────────────────────────────────
+function loadSales(){
+  try{
+    const saved=localStorage.getItem('rr_sales');
+    const all=saved?JSON.parse(saved):{};
+    const todayKey=fmtShort(TODAY);
+    const todayData=all[todayKey]||{};
+    ['sales','tc','waste','discount','grab','fpanda'].forEach(f=>{
+      const el=document.getElementById('s-'+f);
+      if(el&&todayData[f]!==undefined)el.value=todayData[f];
+    });
+    ['mtd-tgt','mtd-ly','mtd','ac'].forEach(f=>{
+      const el=document.getElementById('s-'+f);
+      const key='mtd_'+f;
+      if(el&&all[key]!==undefined)el.value=all[key];
+    });
+    updateADS(all);
+  }catch(e){}
+}
+
+function saveSales(){
+  try{
+    const saved=localStorage.getItem('rr_sales');
+    const all=saved?JSON.parse(saved):{};
+    const todayKey=fmtShort(TODAY);
+    all[todayKey]={};
+    ['sales','tc','waste','discount','grab','fpanda'].forEach(f=>{
+      const v=document.getElementById('s-'+f).value;
+      if(v)all[todayKey][f]=Number(v);
+    });
+    ['mtd-tgt','mtd-ly','mtd','ac'].forEach(f=>{
+      const v=document.getElementById('s-'+f).value;
+      if(v)all['mtd_'+f]=Number(v);
+    });
+    localStorage.setItem('rr_sales',JSON.stringify(all));
+    updateADS(all);
+    document.getElementById('sales-save-note').textContent='✓ Saved '+todayKey;
+  }catch(e){}
+}
+
+function updateADS(all){
+  const day=TODAY.getDate();
+  let total=0;
+  for(let i=1;i<=day;i++){
+    const k=`${String(TODAY.getMonth()+1).padStart(2,'0')}.${String(i).padStart(2,'0')}`;
+    if(all[k]&&all[k].sales)total+=Number(all[k].sales);
+  }
+  const ads=day>0?Math.round(total/day):0;
+  document.getElementById('ads-computed').textContent=ads?ads.toLocaleString():'—';
+}
+</script>
+</body>
+</html>
