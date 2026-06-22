@@ -162,11 +162,11 @@ table.ps-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
   <div id="tab-dic" class="tab-content active">
     <div class="dic-container">
       <div class="section-label">🎂 Cakes</div>
-      <table class="dic-table"><thead id="cake-thead"></thead><tbody id="cake-tbody"></tbody></table>
+      <table class="dic-table" id="cake-table"><thead id="cake-thead"></thead><tbody id="cake-tbody"></tbody></table>
       <div class="section-label" style="margin-top:16px">🍞 Breads & PBDs</div>
-      <table class="dic-table"><thead id="bread-thead"></thead><tbody id="bread-tbody"></tbody></table>
+      <table class="dic-table" id="bread-table"><thead id="bread-thead"></thead><tbody id="bread-tbody"></tbody></table>
       <div class="section-label" style="margin-top:16px">🍬 Polvoron</div>
-      <table class="dic-table"><thead id="polv-thead"></thead><tbody id="polv-tbody"></tbody></table>
+      <table class="dic-table" id="polv-table"><thead id="polv-thead"></thead><tbody id="polv-tbody"></tbody></table>
     </div>
   </div>
 
@@ -769,7 +769,6 @@ function kp(k){
   const el=document.getElementById('mi-'+state.active);
   if(el)el.textContent=v;
 }
-
 function saveModal(){
   const{tid,code}=MS;
   if(!counts[tid][code])counts[tid][code]={};
@@ -1000,70 +999,129 @@ function recalcWithPacks(tid,tcode){
 }
 
 // ── SCREENSHOT ───────────────────────────────────────────────
-async function takeScreenshot(type){
+function getTableData(tableId){
+  const table=document.getElementById(tableId);
+  if(!table)throw new Error('Table not found: '+tableId+' (try opening the DIC tab first)');
+  const rows=[];
+  table.querySelectorAll('tr').forEach(tr=>{
+    const cells=[];
+    const isGroup=tr.classList.contains('group-row');
+    tr.querySelectorAll('th,td').forEach(cell=>{
+      cells.push({
+        text:cell.textContent.trim(),
+        bg:getComputedStyle(cell).backgroundColor,
+        color:getComputedStyle(cell).color,
+        isHeader:cell.tagName==='TH'
+      });
+    });
+    if(cells.length)rows.push({cells,isGroup});
+  });
+  return rows;
+}
+
+function drawTableToCanvas(ctx,rows,startY,colWidths,rowHeight,canvasWidth){
+  ctx.font='10px Segoe UI, sans-serif';
+  let y=startY;
+  rows.forEach(row=>{
+    let x=8;
+    if(row.isGroup){
+      ctx.fillStyle='#0f3460';
+      ctx.fillRect(8,y,canvasWidth-16,rowHeight);
+      ctx.fillStyle='#f5a623';
+      ctx.font='bold 11px Segoe UI, sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText(row.cells[0].text,14,y+rowHeight/2+4);
+      ctx.font='10px Segoe UI, sans-serif';
+      y+=rowHeight;
+      return;
+    }
+    row.cells.forEach((cell,i)=>{
+      const w=colWidths[i]||50;
+      ctx.fillStyle=cell.bg&&cell.bg!=='rgba(0, 0, 0, 0)'?cell.bg:(row.cells[0].isHeader?'#0f3460':'#16213e');
+      ctx.fillRect(x,y,w,rowHeight);
+      ctx.strokeStyle='#2a3a5c';
+      ctx.lineWidth=0.5;
+      ctx.strokeRect(x,y,w,rowHeight);
+      ctx.fillStyle=cell.color&&cell.color!=='rgba(0, 0, 0, 0)'?cell.color:'#eaeaea';
+      ctx.font=cell.isHeader?'bold 9px Segoe UI, sans-serif':(i===0?'600 10px Segoe UI, sans-serif':'10px Segoe UI, sans-serif');
+      ctx.textAlign=i===0?'left':'center';
+      const textX=i===0?x+5:x+w/2;
+      // Truncate long text
+      let txt=cell.text;
+      if(ctx.measureText(txt).width>w-4){
+        while(ctx.measureText(txt+'…').width>w-4&&txt.length>1){txt=txt.slice(0,-1);}
+        txt+='…';
+      }
+      ctx.fillText(txt,textX,y+rowHeight/2+3);
+      x+=w;
+    });
+    y+=rowHeight;
+  });
+  return y;
+}
+
+function takeScreenshot(type){
   const status=document.getElementById('screenshot-status');
-  status.textContent='Loading library...';
-  // Remove old preview if any
   const old=document.getElementById('ss-preview-wrap');
   if(old)old.remove();
-
-  if(!window.html2canvas){
-    await new Promise((res,rej)=>{
-      const s=document.createElement('script');
-      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      s.onload=res;s.onerror=()=>rej(new Error('Failed to load html2canvas'));
-      document.head.appendChild(s);
-    }).catch(e=>{status.textContent='Error: '+e.message;});
-  }
-  if(!window.html2canvas)return;
-
-  // Build off-screen wrapper with cloned tables
-  const wrapper=document.createElement('div');
-  wrapper.style.cssText='position:absolute;top:-99999px;left:0;background:#1a1a2e;padding:16px;color:#eaeaea;font-family:Segoe UI,sans-serif;';
-
-  const hdr=document.createElement('div');
-  hdr.style.cssText='color:#f5a623;font-size:14px;font-weight:700;margin-bottom:10px;';
-  hdr.textContent='RR Dashboard — '+document.getElementById('today-display').textContent;
-  wrapper.appendChild(hdr);
-
-  if(type==='cakes'){
-    const lbl=document.createElement('div');
-    lbl.style.cssText='color:#f5a623;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;';
-    lbl.textContent='🎂 CAKES + ICING';
-    wrapper.appendChild(lbl);
-    wrapper.appendChild(document.getElementById('cake-table').cloneNode(true));
-  } else {
-    ['🍞 BREADS & PBDs','bread-table','🍬 POLVORON','polv-table'].forEach((item,i)=>{
-      if(i%2===0){
-        const lbl=document.createElement('div');
-        lbl.style.cssText='color:#f5a623;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:10px 0 6px;';
-        lbl.textContent=item;wrapper.appendChild(lbl);
-      } else {
-        wrapper.appendChild(document.getElementById(item).cloneNode(true));
-      }
-    });
-  }
-  document.body.appendChild(wrapper);
+  status.textContent='Rendering...';
 
   try{
-    status.textContent='Rendering...';
-    await new Promise(r=>setTimeout(r,200));
-    const canvas=await html2canvas(wrapper,{backgroundColor:'#1a1a2e',scale:2,useCORS:true,logging:false});
-    document.body.removeChild(wrapper);
+    const colWidths=[68,38,32,32,32,30,30,30,30,30,34,38,32,32,40];
+    const canvasWidth=colWidths.reduce((a,b)=>a+b,0)+16;
+    const rowHeight=20;
 
-    // Show image on screen for long-press save
+    // Gather data first to compute total height
+    const tablesToRender=type==='cakes'
+      ? [{label:'🎂 CAKES + ICING',id:'cake-table'}]
+      : [{label:'🍞 BREADS & PBDs',id:'bread-table'},{label:'🍬 POLVORON',id:'polv-table'}];
+
+    let totalRows=0;
+    const allRowData=tablesToRender.map(t=>{
+      const rows=getTableData(t.id);
+      totalRows+=rows.length+2; // +2 for label spacing
+      return {label:t.label,rows};
+    });
+
+    const canvasHeight=60+totalRows*rowHeight+20;
+    const canvas=document.createElement('canvas');
+    canvas.width=canvasWidth*2;
+    canvas.height=canvasHeight*2;
+    const ctx=canvas.getContext('2d');
+    ctx.scale(2,2);
+
+    // Background
+    ctx.fillStyle='#1a1a2e';
+    ctx.fillRect(0,0,canvasWidth,canvasHeight);
+
+    // Header
+    ctx.fillStyle='#f5a623';
+    ctx.font='bold 13px Segoe UI, sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText('RR Dashboard — '+document.getElementById('today-display').textContent,8,20);
+
+    let y=36;
+    allRowData.forEach(t=>{
+      ctx.fillStyle='#f5a623';
+      ctx.font='bold 11px Segoe UI, sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText(t.label,8,y+10);
+      y+=20;
+      y=drawTableToCanvas(ctx,t.rows,y,colWidths,rowHeight,canvasWidth);
+      y+=10;
+    });
+
     const imgSrc=canvas.toDataURL('image/png');
     const preview=document.createElement('div');
     preview.id='ss-preview-wrap';
     preview.style.cssText='margin-top:16px;';
     preview.innerHTML=`
-      <p style="font-size:.72rem;color:#f5a623;margin-bottom:8px;">⬇ Long-press the image below and tap <b>Save Image</b> to keep it:</p>
+      <p style="font-size:.72rem;color:#f5a623;margin-bottom:8px;">⬇ Long-press the image (mobile) or tap the button below:</p>
       <img src="${imgSrc}" style="width:100%;border-radius:8px;border:1px solid #2a3a5c;" />
-      <p style="font-size:.65rem;color:#8892a4;margin-top:6px;">Or tap to open full size, then save from there.</p>`;
+      <a href="${imgSrc}" download="DIC_${type}_${fmtShort(TODAY).replace('.','')}.png" style="display:block;text-align:center;margin-top:10px;padding:10px;background:#e94560;color:#fff;border-radius:8px;text-decoration:none;font-size:.8rem;font-weight:600;">⬇ Download PNG</a>`;
     document.getElementById('screenshot-status').after(preview);
-    status.textContent='✓ Image ready — long-press to save';
+    status.textContent='✓ Image ready';
   } catch(e){
-    if(document.body.contains(wrapper))document.body.removeChild(wrapper);
     status.textContent='Error: '+e.message;
   }
 }
