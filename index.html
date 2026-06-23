@@ -530,7 +530,12 @@ function loadAllData(){
     if(cfgSnap.exists){
       const d=cfgSnap.data();
       if(d.cakeProducts)window.CAKE_PRODUCTS=d.cakeProducts;
-      if(d.breadProducts)window.BREAD_PRODUCTS=d.breadProducts;
+      if(d.breadProducts){
+        // Re-attach pack products (they are never saved to Firestore)
+        const packProds=window.BREAD_PRODUCTS.filter(p=>p.pack);
+        const lastGroup=d.breadProducts.filter(p=>p.group).slice(-1)[0];
+        window.BREAD_PRODUCTS=[...d.breadProducts,...packProds];
+      }
       if(d.polvProducts)window.POLV_PRODUCTS=d.polvProducts;
       if(d.adqMap)window.ADQ_MAP=d.adqMap;
       if(d.delMap)window.DEL_MAP=d.delMap;
@@ -574,13 +579,20 @@ window.fbSaveCounts=()=>scheduleSave('data','counts',{cake:window.counts.cake,br
 window.fbSaveSold=()=>scheduleSave('data','sold',{cake:window.soldCounts.cake,bread:window.soldCounts.bread,polv:window.soldCounts.polv});
 window.fbSaveADQ=()=>scheduleSave('data','adq',window.adqData);
 window.fbSaveSales=()=>scheduleSave('data','sales',window.salesData);
-window.fbSaveConfig=()=>scheduleSave('config','products',{
-  cakeProducts:window.CAKE_PRODUCTS,
-  breadProducts:window.BREAD_PRODUCTS,
-  polvProducts:window.POLV_PRODUCTS,
-  adqMap:window.ADQ_MAP,
-  delMap:window.DEL_MAP,
-});
+// Pack products are hardcoded - never save to Firestore to avoid corruption
+const DEFAULT_PACK_PRODUCTS=window.BREAD_PRODUCTS.filter(p=>p.pack);
+
+window.fbSaveConfig=()=>{
+  // Strip pack products before saving - they contain complex objects Firestore can't handle
+  const breadToSave=window.BREAD_PRODUCTS.filter(p=>!p.pack);
+  scheduleSave('config','products',{
+    cakeProducts:window.CAKE_PRODUCTS,
+    breadProducts:breadToSave,
+    polvProducts:window.POLV_PRODUCTS,
+    adqMap:window.ADQ_MAP,
+    delMap:window.DEL_MAP,
+  });
+};
 window.fbSaveSnapshot=()=>{
   const snapshot={cake:{},bread:{},polv:{}};
   ['cake','bread','polv'].forEach(tid=>{
@@ -864,7 +876,13 @@ function getADQ(code){
 }
 
 // ── BUILD TABLE ──────────────────────────────────────────────
+let _buildTableActive=false;
 function buildTable(tid,products,days,colorDays){
+  if(_buildTableActive)return;
+  _buildTableActive=true;
+  try{_buildTableInner(tid,products,days,colorDays);}finally{_buildTableActive=false;}
+}
+function _buildTableInner(tid,products,days,colorDays){
   const thead=document.getElementById(tid+'-thead');
   const tbody=document.getElementById(tid+'-tbody');
   if(!thead||!tbody)return;
