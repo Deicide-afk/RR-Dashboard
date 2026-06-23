@@ -847,6 +847,8 @@ function switchSub(main,name){
     const el=document.getElementById('sub-'+name);
     if(el)el.classList.add('active');
   }
+  // Lazy render - only build config panel when actually opened
+  if(name==='config')setTimeout(renderConfigPanel,50);
 }
 
 // ── INIT ─────────────────────────────────────────────────────
@@ -856,13 +858,11 @@ window.initApp=function(){
   document.getElementById('del1-date').textContent=fmtFull(addDays(TODAY,1));
   document.getElementById('del2-date').textContent=fmtFull(addDays(TODAY,2));
   document.getElementById('del3-date').textContent=fmtFull(addDays(TODAY,3));
-  buildTable('cake',window.CAKE_PRODUCTS,CAKE_DAYS,true);
-  buildTable('bread',window.BREAD_PRODUCTS,BREAD_DAYS,false);
-  buildTable('polv',window.POLV_PRODUCTS,BREAD_DAYS,false);
-  buildSoldTable();
-  renderPSTable();
-  loadSalesUI();
-  renderConfigPanel();
+  // Stagger table builds to avoid call stack overflow on mobile
+  setTimeout(()=>buildTable('cake',window.CAKE_PRODUCTS,CAKE_DAYS,true),0);
+  setTimeout(()=>buildTable('bread',window.BREAD_PRODUCTS,BREAD_DAYS,false),50);
+  setTimeout(()=>buildTable('polv',window.POLV_PRODUCTS,BREAD_DAYS,false),100);
+  setTimeout(()=>{buildSoldTable();renderPSTable();loadSalesUI();},150);
 };
 
 // ── SAFE CODE ─────────────────────────────────────────────────
