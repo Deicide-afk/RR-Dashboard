@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>RR Dashboard</title>
 <style>
-:root {
+:root{
   --bg:#1a1a2e;--surface:#16213e;--card:#0f3460;--accent:#e94560;--accent2:#f5a623;
   --text:#eaeaea;--muted:#8892a4;--border:#2a3a5c;--green:#27ae60;
   --font:'Segoe UI',system-ui,sans-serif;
@@ -14,49 +14,71 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
 
-/* GATE */
-#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
-.gate-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:320px;text-align:center;}
-.gate-box h1{font-size:1.4rem;margin-bottom:6px;color:var(--accent);}
-.gate-box p{font-size:.8rem;color:var(--muted);margin-bottom:24px;}
-.gate-box input{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;margin-bottom:12px;text-align:center;letter-spacing:4px;}
-.gate-box input:focus{outline:none;border-color:var(--accent);}
-.btn-primary{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
-.gate-error{color:var(--accent);font-size:.8rem;margin-top:8px;display:none;}
+/* AUTH */
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:320px;text-align:center;}
+.auth-box h1{font-size:1.4rem;margin-bottom:6px;color:var(--accent);}
+.auth-box p{font-size:.8rem;color:var(--muted);margin-bottom:24px;}
+.auth-box input{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;margin-bottom:12px;}
+.auth-box input:focus{outline:none;border-color:var(--accent);}
+.btn-primary{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:opacity .2s;}
+.btn-primary:hover{opacity:.85;}
+.auth-error{color:var(--accent);font-size:.8rem;margin-top:8px;min-height:18px;}
+.auth-loading{color:var(--muted);font-size:.8rem;margin-top:8px;}
+
+/* LOADING */
+#loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{color:var(--muted);font-size:.85rem;}
 
 /* APP */
 #app{display:none;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.topbar h1{font-size:1rem;font-weight:700;color:var(--accent);}
-.topbar .date-display{font-size:.75rem;color:var(--muted);}
-.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 8px;overflow-x:auto;}
-.tab-btn{padding:10px 14px;background:none;border:none;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
-.tab-content{display:none;}
-.tab-content.active{display:block;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar h1{font-size:.95rem;font-weight:700;color:var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar .date-display{font-size:.7rem;color:var(--muted);}
+.sync-indicator{font-size:.65rem;padding:2px 8px;border-radius:10px;background:rgba(39,174,96,.15);color:#4ade80;border:1px solid rgba(39,174,96,.3);}
+.sync-indicator.saving{background:rgba(245,166,35,.15);color:var(--accent2);border-color:rgba(245,166,35,.3);}
+.sync-indicator.error{background:rgba(233,69,96,.15);color:var(--accent);border-color:rgba(233,69,96,.3);}
+.btn-logout{font-size:.65rem;padding:4px 10px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;}
+
+/* MAIN TABS */
+.main-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+.main-tab-btn{flex:1;padding:12px;background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.main-tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* DROPDOWN NAV */
+.dropdown-nav{background:rgba(15,52,96,.3);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap;}
+.dropdown-nav::-webkit-scrollbar{display:none;}
+.sub-btn{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;-webkit-tap-highlight-color:transparent;}
+.sub-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* CONTENT */
+.sub-content{display:none;}
+.sub-content.active{display:block;}
 
 /* SECTION LABEL */
 .section-label{font-size:.7rem;font-weight:700;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;padding:10px 12px 4px;}
 
 /* DIC TABLE */
 .dic-container{padding:8px;overflow-x:auto;}
-table.dic-table{width:100%;border-collapse:collapse;font-size:.7rem;min-width:750px;}
-table.dic-table th{background:var(--card);padding:5px 4px;text-align:center;font-size:.62rem;border:1px solid var(--border);position:sticky;top:48px;white-space:nowrap;}
+table.dic-table{width:100%;border-collapse:collapse;font-size:.7rem;min-width:820px;}
+table.dic-table th{background:var(--card);padding:5px 3px;text-align:center;font-size:.6rem;border:1px solid var(--border);white-space:nowrap;}
 table.dic-table td{padding:4px 3px;border:1px solid var(--border);text-align:center;vertical-align:middle;}
 table.dic-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
-.product-name{text-align:left!important;font-weight:600;color:var(--text);cursor:pointer;white-space:nowrap;padding-left:8px!important;}
-.product-name:hover{color:var(--accent);text-decoration:underline;}
+.product-name{text-align:left!important;font-weight:600;cursor:pointer;white-space:nowrap;padding-left:8px!important;}
+.product-name:hover{color:var(--accent);}
 .group-row td{background:var(--card)!important;font-weight:700;color:var(--accent2);font-size:.7rem;text-align:left!important;padding-left:8px!important;}
-.cutoff{color:var(--muted);font-size:.62rem;}
-.count-cell{font-weight:700;min-width:28px;}
+.cutoff{color:var(--muted);font-size:.6rem;}
+.count-cell{font-weight:700;min-width:26px;}
 .count-cell.has-value{color:#4ade80;}
-.var-cell{color:#f87171;font-size:.68rem;}
+.var-cell{color:var(--muted);font-size:.68rem;}
+.variance-cell{font-size:.68rem;font-weight:600;}
 .total-cell{font-weight:700;color:var(--accent2);}
 .del-cell{color:#60a5fa;}
 .forecast-cell{color:#a78bfa;}
-
-/* Day header colors */
-.day-header{font-size:.6rem;padding:4px 3px!important;line-height:1.3;}
+.day-header{font-size:.58rem;padding:4px 2px!important;line-height:1.3;}
 .day-mon{background:var(--mon)!important;color:#fff!important;}
 .day-tue{background:var(--tue)!important;color:#fff!important;}
 .day-wed{background:var(--wed)!important;color:#222!important;}
@@ -66,7 +88,7 @@ table.dic-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
 .day-sun{background:var(--sun)!important;color:#fff!important;}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal-box{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;transform:translateY(100%);transition:transform .3s ease;max-height:90vh;overflow-y:auto;}
 .modal-overlay.open .modal-box{transform:translateY(0);}
@@ -79,7 +101,7 @@ table.dic-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
 .day-input-field{width:100%;padding:8px;background:var(--bg);border:none;color:var(--text);font-size:1.1rem;font-weight:700;text-align:center;border-top:1px solid var(--border);min-height:38px;}
 .active-field-label{text-align:center;font-size:.75rem;color:var(--accent2);margin-bottom:8px;min-height:18px;}
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
-.key{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:1.2rem;font-weight:600;text-align:center;cursor:pointer;color:var(--text);transition:background .15s;-webkit-tap-highlight-color:transparent;}
+.key{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:1.2rem;font-weight:600;text-align:center;cursor:pointer;color:var(--text);-webkit-tap-highlight-color:transparent;}
 .key:active{background:var(--accent);}
 .key.del{color:var(--accent);font-size:.9rem;}
 .key.clr{color:var(--muted);font-size:.9rem;}
@@ -87,7 +109,21 @@ table.dic-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
 .btn-cancel{flex:1;padding:12px;background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:10px;font-size:.9rem;cursor:pointer;}
 .btn-save{flex:2;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;}
 
-/* DELIVERY TAB */
+/* DIC SOLD */
+.dic-sold-section{padding:12px;}
+.sold-search{width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;margin-bottom:12px;}
+.sold-search:focus{outline:none;border-color:var(--accent);}
+.sold-table-wrap{overflow-x:auto;}
+table.sold-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+table.sold-table th{background:var(--card);padding:8px 10px;text-align:left;font-size:.72rem;border:1px solid var(--border);}
+table.sold-table td{padding:8px 10px;border:1px solid var(--border);vertical-align:middle;}
+table.sold-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.sold-qty-input{width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.9rem;padding:6px;text-align:center;}
+.sold-section-header{background:var(--card)!important;color:var(--accent2)!important;font-weight:700;font-size:.72rem;}
+.btn-apply{width:100%;margin-top:14px;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;}
+.sold-result{margin-top:10px;font-size:.75rem;color:var(--green);min-height:18px;}
+
+/* DELIVERY */
 .delivery-section{padding:12px;}
 .delivery-grid{display:grid;grid-template-columns:1fr;gap:14px;}
 @media(min-width:600px){.delivery-grid{grid-template-columns:repeat(3,1fr);}}
@@ -96,27 +132,27 @@ table.dic-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
 .delivery-date-sub{font-size:.65rem;color:var(--muted);margin-bottom:10px;}
 .delivery-paste{width:100%;height:120px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.68rem;padding:8px;resize:none;font-family:monospace;}
 .delivery-paste:focus{outline:none;border-color:var(--accent);}
-.btn-extract{width:100%;margin-top:8px;padding:8px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:.75rem;cursor:pointer;transition:background .2s;}
+.btn-extract{width:100%;margin-top:8px;padding:8px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:.75rem;cursor:pointer;}
 .btn-extract:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
 .delivery-result{font-size:.65rem;color:var(--green);margin-top:6px;min-height:16px;}
 
-/* PRODUCT SOLD TAB */
+/* PRODUCT SOLD */
 .ps-section{padding:12px;}
 .ps-info{font-size:.75rem;color:var(--muted);margin-bottom:12px;line-height:1.6;}
 .ps-paste{width:100%;height:160px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.68rem;padding:10px;resize:none;font-family:monospace;margin-bottom:10px;}
 .ps-paste:focus{outline:none;border-color:var(--accent);}
-.ps-actions{display:flex;gap:10px;margin-bottom:16px;}
+.ps-actions{display:flex;gap:10px;margin-bottom:12px;}
 .btn-calc{flex:2;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;}
 .btn-clear-ps{flex:1;padding:10px;background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.85rem;cursor:pointer;}
-.ps-result-info{font-size:.72rem;color:var(--green);margin-bottom:12px;min-height:18px;}
-table.ps-table{width:100%;border-collapse:collapse;font-size:.72rem;min-width:420px;}
+.ps-result-info{font-size:.72rem;color:var(--green);margin-bottom:10px;min-height:18px;}
+table.ps-table{width:100%;border-collapse:collapse;font-size:.72rem;}
 table.ps-table th{background:var(--card);padding:6px 8px;text-align:center;font-size:.65rem;border:1px solid var(--border);}
 table.ps-table td{padding:5px 8px;border:1px solid var(--border);text-align:center;}
 table.ps-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
 .ps-name{text-align:left!important;font-weight:600;}
 .ps-group{background:var(--card)!important;color:var(--accent2)!important;font-weight:700;text-align:left!important;padding-left:8px!important;}
 
-/* SALES TAB */
+/* SALES */
 .sales-section{padding:16px;}
 .sales-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .sales-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;}
@@ -126,155 +162,254 @@ table.ps-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
 .sales-card .computed{font-size:1.1rem;font-weight:700;color:var(--accent2);padding:7px 0;}
 .btn-save-sales{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:8px;}
 .sales-note{font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center;}
-.btn-screenshot{width:100%;padding:16px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;text-align:left;transition:background .2s;}
+
+/* PRINT */
+.print-section{padding:20px;}
+.btn-screenshot{width:100%;padding:16px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;text-align:left;transition:background .2s;margin-bottom:12px;}
 .btn-screenshot:hover{background:var(--accent);border-color:var(--accent);}
+
+/* CONFIG */
+.config-section{padding:12px;}
+.config-picker{display:flex;gap:10px;margin-bottom:16px;}
+.config-pick-btn{flex:1;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;}
+.config-pick-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.config-panel{display:none;}
+.config-panel.active{display:block;}
+.config-sub-title{font-size:.75rem;font-weight:700;color:var(--accent2);margin:14px 0 8px;text-transform:uppercase;letter-spacing:1px;}
+.product-list-edit{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.product-row-edit{display:flex;gap:6px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+.product-row-edit input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.8rem;padding:5px 8px;}
+.product-row-edit input:focus{outline:none;border-color:var(--accent);}
+.product-row-edit .del-btn{padding:4px 10px;background:rgba(233,69,96,.15);color:var(--accent);border:1px solid rgba(233,69,96,.3);border-radius:6px;font-size:.75rem;cursor:pointer;}
+.product-row-edit .group-label{font-size:.65rem;color:var(--accent2);font-weight:700;min-width:60px;}
+.btn-add-product{width:100%;padding:9px;background:rgba(39,174,96,.1);color:#4ade80;border:1px solid rgba(39,174,96,.3);border-radius:8px;font-size:.8rem;cursor:pointer;margin-bottom:8px;}
+.btn-save-config{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:8px;}
+.config-note{font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center;}
+.map-row-edit{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.map-row-edit input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.72rem;padding:5px 8px;}
+.map-row-edit input:focus{outline:none;border-color:var(--accent);}
+.map-row-edit .del-btn{padding:4px 8px;background:rgba(233,69,96,.15);color:var(--accent);border:1px solid rgba(233,69,96,.3);border-radius:6px;font-size:.72rem;cursor:pointer;}
+
+/* EMPTY TAB */
+.empty-tab{padding:40px 20px;text-align:center;color:var(--muted);font-size:.85rem;}
+.empty-tab .icon{font-size:2rem;margin-bottom:10px;}
 </style>
 </head>
 <body>
 
-<!-- GATE -->
-<div id="gate">
-  <div class="gate-box">
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
     <h1>RR Dashboard</h1>
-    <p>Personal inventory & sales tracker</p>
-    <input type="password" id="pw-input" placeholder="••••••••" maxlength="20"/>
-    <button class="btn-primary" onclick="checkPw()">Enter</button>
-    <div class="gate-error" id="gate-error">Incorrect password</div>
+    <p>Sign in to continue</p>
+    <input type="email" id="auth-email" placeholder="Email" autocomplete="email"/>
+    <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password"/>
+    <button class="btn-primary" onclick="doLogin()">Sign In</button>
+    <div class="auth-error" id="auth-error"></div>
   </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-screen" style="display:none">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Loading data...</div>
 </div>
 
 <!-- APP -->
 <div id="app">
   <div class="topbar">
     <h1>RR Dashboard</h1>
-    <span class="date-display" id="today-display"></span>
-  </div>
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('dic')">DIC</button>
-    <button class="tab-btn" onclick="switchTab('prodsold')">Product Sold</button>
-    <button class="tab-btn" onclick="switchTab('delivery')">Delivery</button>
-    <button class="tab-btn" onclick="switchTab('sales')">Sales</button>
-    <button class="tab-btn" onclick="switchTab('dicsold')">DIC Sold</button>
-    <button class="tab-btn" onclick="switchTab('print')">Print</button>
-  </div>
-
-  <!-- DIC TAB -->
-  <div id="tab-dic" class="tab-content active">
-    <div class="dic-container">
-      <div class="section-label">🎂 Cakes</div>
-      <table class="dic-table" id="cake-table"><thead id="cake-thead"></thead><tbody id="cake-tbody"></tbody></table>
-      <div class="section-label" style="margin-top:16px">🍞 Breads & PBDs</div>
-      <table class="dic-table" id="bread-table"><thead id="bread-thead"></thead><tbody id="bread-tbody"></tbody></table>
-      <div class="section-label" style="margin-top:16px">🍬 Polvoron</div>
-      <table class="dic-table" id="polv-table"><thead id="polv-thead"></thead><tbody id="polv-tbody"></tbody></table>
+    <div class="topbar-right">
+      <span class="date-display" id="today-display"></span>
+      <span class="sync-indicator" id="sync-indicator">Synced</span>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
     </div>
   </div>
 
-  <!-- PRODUCT SOLD TAB -->
-  <div id="tab-prodsold" class="tab-content">
-    <div class="ps-section">
-      <div class="section-label" style="padding-left:0">Product Sold (15-day period)</div>
-      <p class="ps-info">Paste the exported sales report (.txt) below. ADQ = Qty ÷ 15 &nbsp;|&nbsp; MIN = ADQ × 120% &nbsp;|&nbsp; MAX = ADQ × 150%<br>Data is saved and persists between sessions.</p>
-      <textarea class="ps-paste" id="ps-paste" placeholder="Paste sales report here..."></textarea>
-      <div class="ps-actions">
-        <button class="btn-calc" onclick="calcADQ()">Calculate & Save</button>
-        <button class="btn-clear-ps" onclick="clearPS()">Clear</button>
-      </div>
-      <div class="ps-result-info" id="ps-result-info"></div>
-      <div style="overflow-x:auto">
-        <table class="ps-table" id="ps-table">
-          <thead><tr><th style="text-align:left">Product</th><th>Code</th><th>Qty Sold</th><th>ADQ</th><th>MIN</th><th>MAX</th></tr></thead>
-          <tbody id="ps-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+  <!-- MAIN TABS -->
+  <div class="main-tabs">
+    <button class="main-tab-btn active" onclick="switchMain('dic')">📋 DIC</button>
+    <button class="main-tab-btn" onclick="switchMain('sales')">💰 Sales</button>
   </div>
 
-  <!-- DELIVERY TAB -->
-  <div id="tab-delivery" class="tab-content">
-    <div class="delivery-section">
-      <div class="section-label" style="padding-left:0;margin-bottom:12px">Delivery Fill-in</div>
-      <div class="delivery-grid">
-        <div class="delivery-card">
-          <h3>Delivery</h3>
-          <div class="delivery-date-sub" id="del1-date"></div>
-          <textarea class="delivery-paste" id="paste-del1" placeholder="Paste delivery data here..."></textarea>
-          <button class="btn-extract" onclick="extractDel('del1')">Extract & Fill</button>
-          <div class="delivery-result" id="result-del1"></div>
-        </div>
-        <div class="delivery-card">
-          <h3>Delivery</h3>
-          <div class="delivery-date-sub" id="del2-date"></div>
-          <textarea class="delivery-paste" id="paste-del2" placeholder="Paste delivery data here..."></textarea>
-          <button class="btn-extract" onclick="extractDel('del2')">Extract & Fill</button>
-          <div class="delivery-result" id="result-del2"></div>
-        </div>
-        <div class="delivery-card">
-          <h3>Forecast</h3>
-          <div class="delivery-date-sub" id="del3-date"></div>
-          <textarea class="delivery-paste" id="paste-del3" placeholder="Paste delivery data here..."></textarea>
-          <button class="btn-extract" onclick="extractDel('del3')">Extract & Fill</button>
-          <div class="delivery-result" id="result-del3"></div>
-        </div>
+  <!-- DIC SECTION -->
+  <div id="main-dic" class="sub-content active">
+    <div class="dropdown-nav" id="dic-subnav">
+      <button class="sub-btn active" onclick="switchSub('dic','daily')">Daily Inventory</button>
+      <button class="sub-btn" onclick="switchSub('dic','dicsold')">DIC Sold</button>
+      <button class="sub-btn" onclick="switchSub('dic','ps15')">Product Sold 15 Days</button>
+      <button class="sub-btn" onclick="switchSub('dic','delivery')">Delivery</button>
+      <button class="sub-btn" onclick="switchSub('dic','print')">Print</button>
+      <button class="sub-btn" onclick="switchSub('dic','config')">Product Config</button>
+      <button class="sub-btn" onclick="switchSub('dic','pst')">Product Sold Today</button>
+      <button class="sub-btn" onclick="switchSub('dic','toplow')">Top & Lowest Selling</button>
+    </div>
+
+    <!-- DAILY INVENTORY -->
+    <div id="sub-daily" class="sub-content active">
+      <div class="dic-container">
+        <div class="section-label">🎂 Cakes</div>
+        <table class="dic-table" id="cake-table"><thead id="cake-thead"></thead><tbody id="cake-tbody"></tbody></table>
+        <div class="section-label" style="margin-top:14px">🍞 Breads & PBDs</div>
+        <table class="dic-table" id="bread-table"><thead id="bread-thead"></thead><tbody id="bread-tbody"></tbody></table>
+        <div class="section-label" style="margin-top:14px">🍬 Polvoron</div>
+        <table class="dic-table" id="polv-table"><thead id="polv-thead"></thead><tbody id="polv-tbody"></tbody></table>
       </div>
     </div>
-  </div>
 
-  <!-- SALES TAB -->
-  <div id="tab-sales" class="tab-content">
-    <div class="sales-section">
-      <div class="section-label" style="padding-left:0">Today's Entry</div>
-      <div class="sales-grid" style="margin-top:10px">
-        <div class="sales-card"><label>Sales</label><input type="number" id="s-sales" placeholder="0"/></div>
-        <div class="sales-card"><label>TC</label><input type="number" id="s-tc" placeholder="0"/></div>
-        <div class="sales-card"><label>Waste</label><input type="number" id="s-waste" placeholder="0"/></div>
-        <div class="sales-card"><label>Discount</label><input type="number" id="s-discount" placeholder="0"/></div>
-        <div class="sales-card"><label>Grab</label><input type="number" id="s-grab" placeholder="0"/></div>
-        <div class="sales-card"><label>FPanda</label><input type="number" id="s-fpanda" placeholder="0"/></div>
+    <!-- DIC SOLD -->
+    <div id="sub-dicsold" class="sub-content">
+      <div class="dic-sold-section">
+        <div class="section-label" style="padding-left:0;margin-bottom:8px">DIC Sold — FIFO Deduction</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:12px;">Enter qty sold per product. Deduction order: Day 4 → Day 3 → Day 2 → Day 1 → LA</p>
+        <input type="text" class="sold-search" id="sold-search" placeholder="🔍 Search product..." oninput="filterSoldTable()"/>
+        <div class="sold-table-wrap">
+          <table class="sold-table">
+            <thead><tr><th>Product</th><th style="text-align:center">Qty Sold</th><th style="text-align:center">Available</th></tr></thead>
+            <tbody id="sold-tbody"></tbody>
+          </table>
+        </div>
+        <button class="btn-apply" onclick="applySold()">✅ Apply FIFO Deduction</button>
+        <div class="sold-result" id="sold-result"></div>
       </div>
-      <button class="btn-save-sales" onclick="saveSales()">Save Today's Sales</button>
-      <p class="sales-note" id="sales-save-note"></p>
+    </div>
 
-      <div class="section-label" style="padding-left:0;margin-top:16px">MTD</div>
-      <div class="sales-grid" style="margin-top:10px">
-        <div class="sales-card"><label>MTD TGT</label><input type="number" id="s-mtd-tgt" placeholder="0"/></div>
-        <div class="sales-card"><label>MTD LY</label><input type="number" id="s-mtd-ly" placeholder="0"/></div>
-        <div class="sales-card"><label>MTD</label><input type="number" id="s-mtd" placeholder="0"/></div>
-        <div class="sales-card"><label>AC</label><input type="number" id="s-ac" placeholder="0"/></div>
-        <div class="sales-card">
-          <label>ADS (auto)</label>
-          <div class="computed" id="ads-computed">—</div>
+    <!-- PRODUCT SOLD 15 DAYS -->
+    <div id="sub-ps15" class="sub-content">
+      <div class="ps-section">
+        <div class="section-label" style="padding-left:0">Product Sold for 15 Days</div>
+        <p class="ps-info">Paste the exported sales report (.txt). ADQ = Qty ÷ 15 | MIN = ADQ × 120% | MAX = ADQ × 150%<br>Data is saved to Firebase.</p>
+        <textarea class="ps-paste" id="ps-paste" placeholder="Paste sales report here..."></textarea>
+        <div class="ps-actions">
+          <button class="btn-calc" onclick="calcADQ()">Calculate & Save</button>
+          <button class="btn-clear-ps" onclick="clearPS()">Clear</button>
+        </div>
+        <div class="ps-result-info" id="ps-result-info"></div>
+        <div style="overflow-x:auto">
+          <table class="ps-table" id="ps-table">
+            <thead><tr><th style="text-align:left">Product</th><th>Qty Sold</th><th>ADQ</th><th>MIN</th><th>MAX</th></tr></thead>
+            <tbody id="ps-tbody"></tbody>
+          </table>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- DIC SOLD TAB -->
-  <div id="tab-dicsold" class="tab-content">
-    <div class="dic-container">
-      <div style="padding:4px 4px 8px;font-size:.72rem;color:var(--muted);">Encode sold quantities here — they will be subtracted from DIC counts per day.</div>
-      <div class="section-label">🎂 Cakes</div>
-      <table class="dic-table"><thead id="cakes-sold-thead"></thead><tbody id="cakes-sold-tbody"></tbody></table>
-      <div class="section-label" style="margin-top:16px">🍞 Breads & PBDs</div>
-      <table class="dic-table"><thead id="bread-sold-thead"></thead><tbody id="bread-sold-tbody"></tbody></table>
-      <div class="section-label" style="margin-top:16px">🍬 Polvoron</div>
-      <table class="dic-table"><thead id="polv-sold-thead"></thead><tbody id="polv-sold-tbody"></tbody></table>
-    </div>
-  </div>
-
-  <!-- PRINT TAB -->
-  <div id="tab-print" class="tab-content">
-    <div style="padding:20px">
-      <div class="section-label" style="padding-left:0;margin-bottom:16px">Save as PNG</div>
-      <p style="font-size:.78rem;color:var(--muted);margin-bottom:24px;line-height:1.6">Tap a button to capture and download a PNG of that section. Make sure you've entered your counts in the DIC tab first.</p>
-      <div style="display:flex;flex-direction:column;gap:14px;max-width:340px">
-        <button class="btn-screenshot" onclick="takeScreenshot('cakes')">🎂&nbsp; Save Cakes + Icing</button>
-        <button class="btn-screenshot" onclick="takeScreenshot('breads')">🍞&nbsp; Save Breads + Polvoron</button>
+    <!-- DELIVERY -->
+    <div id="sub-delivery" class="sub-content">
+      <div class="delivery-section">
+        <div class="section-label" style="padding-left:0;margin-bottom:12px">Delivery Fill-in</div>
+        <div class="delivery-grid">
+          <div class="delivery-card">
+            <h3>Delivery</h3>
+            <div class="delivery-date-sub" id="del1-date"></div>
+            <textarea class="delivery-paste" id="paste-del1" placeholder="Paste delivery data here..."></textarea>
+            <button class="btn-extract" onclick="extractDel('del1')">Extract & Fill</button>
+            <div class="delivery-result" id="result-del1"></div>
+          </div>
+          <div class="delivery-card">
+            <h3>Delivery</h3>
+            <div class="delivery-date-sub" id="del2-date"></div>
+            <textarea class="delivery-paste" id="paste-del2" placeholder="Paste delivery data here..."></textarea>
+            <button class="btn-extract" onclick="extractDel('del2')">Extract & Fill</button>
+            <div class="delivery-result" id="result-del2"></div>
+          </div>
+          <div class="delivery-card">
+            <h3>Forecast</h3>
+            <div class="delivery-date-sub" id="del3-date"></div>
+            <textarea class="delivery-paste" id="paste-del3" placeholder="Paste delivery data here..."></textarea>
+            <button class="btn-extract" onclick="extractDel('del3')">Extract & Fill</button>
+            <div class="delivery-result" id="result-del3"></div>
+          </div>
+        </div>
       </div>
-      <div id="screenshot-status" style="margin-top:16px;font-size:.75rem;color:var(--green);min-height:20px"></div>
+    </div>
+
+    <!-- PRINT -->
+    <div id="sub-print" class="sub-content">
+      <div class="print-section">
+        <div class="section-label" style="padding-left:0;margin-bottom:16px">Save as PNG</div>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:20px;line-height:1.6">Tap a button to capture and download that section as a PNG image.</p>
+        <button class="btn-screenshot" onclick="takeScreenshot('cakes')">🎂 Save Cakes + Icing</button>
+        <button class="btn-screenshot" onclick="takeScreenshot('breads')">🍞 Save Breads + Polvoron</button>
+        <div id="screenshot-status" style="font-size:.75rem;color:var(--green);min-height:20px;margin-bottom:12px"></div>
+        <div id="ss-preview-wrap"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCT CONFIG -->
+    <div id="sub-config" class="sub-content">
+      <div class="config-section">
+        <div class="section-label" style="padding-left:0;margin-bottom:12px">Product Config</div>
+        <div class="config-picker">
+          <button class="config-pick-btn active" onclick="switchConfig('cakes')">🎂 Cakes + Icing</button>
+          <button class="config-pick-btn" onclick="switchConfig('breads')">🍞 Breads & Polvoron</button>
+          <button class="config-pick-btn" onclick="switchConfig('maps')">🗺️ Maps</button>
+        </div>
+        <div id="config-cakes" class="config-panel active"></div>
+        <div id="config-breads" class="config-panel"></div>
+        <div id="config-maps" class="config-panel"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCT SOLD TODAY -->
+    <div id="sub-pst" class="sub-content">
+      <div class="ps-section">
+        <div class="section-label" style="padding-left:0">Product Sold Today</div>
+        <p class="ps-info">Paste today's sales report. Data stays in memory only (resets on refresh). Used for Variance column calculation.</p>
+        <textarea class="ps-paste" id="pst-paste" placeholder="Paste today's sales report here..."></textarea>
+        <div class="ps-actions">
+          <button class="btn-calc" onclick="calcPST()">Calculate</button>
+          <button class="btn-clear-ps" onclick="clearPST()">Clear</button>
+        </div>
+        <div class="ps-result-info" id="pst-result-info"></div>
+        <div style="overflow-x:auto">
+          <table class="ps-table" id="pst-table">
+            <thead><tr><th style="text-align:left">Product</th><th>Qty Sold Today</th></tr></thead>
+            <tbody id="pst-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP & LOWEST -->
+    <div id="sub-toplow" class="sub-content">
+      <div class="empty-tab">
+        <div class="icon">📊</div>
+        <p>Top & Lowest Selling</p>
+        <p style="margin-top:8px;font-size:.75rem">Coming soon — will show top and lowest selling products by revenue, separated by cakes and breads.</p>
+      </div>
     </div>
   </div>
 
+  <!-- SALES SECTION -->
+  <div id="main-sales" class="sub-content">
+    <div class="dropdown-nav">
+      <button class="sub-btn active" onclick="switchSub('sales','salesday')">Sales Today</button>
+    </div>
+    <div id="sub-salesday" class="sub-content active">
+      <div class="sales-section">
+        <div class="section-label" style="padding-left:0">Today's Entry</div>
+        <div class="sales-grid" style="margin-top:10px">
+          <div class="sales-card"><label>Sales</label><input type="number" id="s-sales" placeholder="0"/></div>
+          <div class="sales-card"><label>TC</label><input type="number" id="s-tc" placeholder="0"/></div>
+          <div class="sales-card"><label>Waste</label><input type="number" id="s-waste" placeholder="0"/></div>
+          <div class="sales-card"><label>Discount</label><input type="number" id="s-discount" placeholder="0"/></div>
+          <div class="sales-card"><label>Grab</label><input type="number" id="s-grab" placeholder="0"/></div>
+          <div class="sales-card"><label>FPanda</label><input type="number" id="s-fpanda" placeholder="0"/></div>
+        </div>
+        <button class="btn-save-sales" onclick="saveSales()">Save Today's Sales</button>
+        <p class="sales-note" id="sales-save-note"></p>
+        <div class="section-label" style="padding-left:0;margin-top:16px">MTD</div>
+        <div class="sales-grid" style="margin-top:10px">
+          <div class="sales-card"><label>MTD TGT</label><input type="number" id="s-mtd-tgt" placeholder="0"/></div>
+          <div class="sales-card"><label>MTD LY</label><input type="number" id="s-mtd-ly" placeholder="0"/></div>
+          <div class="sales-card"><label>MTD</label><input type="number" id="s-mtd" placeholder="0" oninput="updateADS()"/></div>
+          <div class="sales-card"><label>AC</label><input type="number" id="s-ac" placeholder="0"/></div>
+          <div class="sales-card"><label>ADS (auto)</label><div class="computed" id="ads-computed">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -290,395 +425,481 @@ table.ps-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
       <div class="key" onclick="kp('7')">7</div><div class="key" onclick="kp('8')">8</div><div class="key" onclick="kp('9')">9</div>
       <div class="key clr" onclick="kp('clr')">CLR</div><div class="key" onclick="kp('0')">0</div><div class="key del" onclick="kp('del')">⌫</div>
     </div>
-    <div id="var-sign-row" style="display:none;gap:8px;margin-bottom:8px;">
+    <div id="var-sign-row" style="display:none;flex;gap:8px;margin-bottom:8px;">
       <button onclick="kp('pos')" style="flex:1;padding:10px;background:var(--card);color:#4ade80;border:1px solid var(--border);border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;">+ Positive</button>
       <button onclick="kp('neg')" style="flex:1;padding:10px;background:var(--card);color:#f87171;border:1px solid var(--border);border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;">− Negative</button>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveModal()">Save</button>
+      <button class="btn-save" id="btn-save-modal" onclick="saveModal()">Save</button>
     </div>
   </div>
 </div>
 
+<!-- FIREBASE COMPAT (works as regular scripts, no module needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig={
+  apiKey:"AIzaSyBTseYj1mVXWmkQIfB43gf7A1hbdpFYr6g",
+  authDomain:"dic-rr.firebaseapp.com",
+  projectId:"dic-rr",
+  storageBucket:"dic-rr.firebasestorage.app",
+  messagingSenderId:"1051276633011",
+  appId:"1:1051276633011:web:61562af524568815b3a1c6",
+  measurementId:"G-H0Y034C3F1"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
+
+// ── AUTH ─────────────────────────────────────────────────────
+function doLogin(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pw=document.getElementById('auth-password').value;
+  const errEl=document.getElementById('auth-error');
+  errEl.textContent='';
+  if(!email||!pw){errEl.textContent='Please enter email and password.';return;}
+  auth.signInWithEmailAndPassword(email,pw).catch(e=>{
+    errEl.textContent=e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'?'Incorrect email or password.':'Error: '+e.message;
+  });
+}
+document.getElementById('auth-password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function doLogout(){
+  auth.signOut().then(()=>{
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-screen').style.display='flex';
+  });
+}
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById('auth-screen').style.display='none';
+    showLoading('Loading data...');
+    window._uid=user.uid;
+    loadAllData();
+  } else {
+    hideLoading();
+    document.getElementById('auth-screen').style.display='flex';
+    document.getElementById('app').style.display='none';
+  }
+});
+
+// ── FIRESTORE HELPERS ────────────────────────────────────────
+function userDoc(path){
+  const parts=path.split('/');
+  if(parts.length===2)return db.collection('users').doc(window._uid).collection(parts[0]).doc(parts[1]);
+  return db.collection('users').doc(window._uid).collection(path);
+}
+
+let saveTimer=null;
+function scheduleSave(colName,docName,data){
+  setSyncStatus('saving');
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    db.collection('users').doc(window._uid).collection(colName).doc(docName)
+      .set(data,{merge:true})
+      .then(()=>setSyncStatus('synced'))
+      .catch(e=>{setSyncStatus('error');console.error('Save error:',e);});
+  },800);
+}
+
+function setSyncStatus(s){
+  const el=document.getElementById('sync-indicator');
+  if(!el)return;
+  el.textContent=s==='saving'?'Saving…':s==='error'?'Error':'Synced';
+  el.className='sync-indicator'+(s==='saving'?' saving':s==='error'?' error':'');
+}
+
+// ── LOAD ALL DATA ────────────────────────────────────────────
+function loadAllData(){
+  const base=db.collection('users').doc(window._uid);
+  const gets=[
+    base.collection('config').doc('products').get(),
+    base.collection('data').doc('counts').get(),
+    base.collection('data').doc('sold').get(),
+    base.collection('data').doc('adq').get(),
+    base.collection('data').doc('sales').get(),
+    base.collection('snapshots').doc(fmtShort(addDays(TODAY,-1))).get(),
+  ];
+  Promise.all(gets).then(([cfgSnap,countsSnap,soldSnap,adqSnap,salesSnap,yestSnap])=>{
+    // Config
+    if(cfgSnap.exists){
+      const d=cfgSnap.data();
+      if(d.cakeProducts)window.CAKE_PRODUCTS=d.cakeProducts;
+      if(d.breadProducts)window.BREAD_PRODUCTS=d.breadProducts;
+      if(d.polvProducts)window.POLV_PRODUCTS=d.polvProducts;
+      if(d.adqMap)window.ADQ_MAP=d.adqMap;
+      if(d.delMap)window.DEL_MAP=d.delMap;
+    }
+    // Counts
+    if(countsSnap.exists){
+      const d=countsSnap.data();
+      Object.assign(window.counts.cake,d.cake||{});
+      Object.assign(window.counts.bread,d.bread||{});
+      Object.assign(window.counts.polv,d.polv||{});
+    }
+    // Sold
+    if(soldSnap.exists){
+      const d=soldSnap.data();
+      Object.assign(window.soldCounts.cake,d.cake||{});
+      Object.assign(window.soldCounts.bread,d.bread||{});
+      Object.assign(window.soldCounts.polv,d.polv||{});
+    }
+    // ADQ
+    if(adqSnap.exists) Object.assign(window.adqData,adqSnap.data());
+    // Sales
+    if(salesSnap.exists) Object.assign(window.salesData,salesSnap.data());
+    // Yesterday ending
+    if(yestSnap.exists){
+      const d=yestSnap.data();
+      ['cake','bread','polv'].forEach(tid=>{
+        Object.entries(d[tid]||{}).forEach(([code,val])=>{yesterdayEnding[code]=val;});
+      });
+    }
+    hideLoading();
+    document.getElementById('app').style.display='block';
+    window.initApp();
+  }).catch(e=>{
+    hideLoading();
+    alert('Error loading data: '+e.message);
+  });
+}
+
+// ── EXPOSE SAVE FUNCTIONS ────────────────────────────────────
+window.fbSaveCounts=()=>scheduleSave('data','counts',{cake:window.counts.cake,bread:window.counts.bread,polv:window.counts.polv});
+window.fbSaveSold=()=>scheduleSave('data','sold',{cake:window.soldCounts.cake,bread:window.soldCounts.bread,polv:window.soldCounts.polv});
+window.fbSaveADQ=()=>scheduleSave('data','adq',window.adqData);
+window.fbSaveSales=()=>scheduleSave('data','sales',window.salesData);
+window.fbSaveConfig=()=>scheduleSave('config','products',{
+  cakeProducts:window.CAKE_PRODUCTS,
+  breadProducts:window.BREAD_PRODUCTS,
+  polvProducts:window.POLV_PRODUCTS,
+  adqMap:window.ADQ_MAP,
+  delMap:window.DEL_MAP,
+});
+window.fbSaveSnapshot=()=>{
+  const snapshot={cake:{},bread:{},polv:{}};
+  ['cake','bread','polv'].forEach(tid=>{
+    const prods=tid==='cake'?window.CAKE_PRODUCTS:tid==='bread'?window.BREAD_PRODUCTS:window.POLV_PRODUCTS;
+    prods.forEach(p=>{
+      if(p.group||p.pack)return;
+      snapshot[tid][p.code]=window.calcProductTotal?window.calcProductTotal(tid,p.code)||0:0;
+    });
+  });
+  db.collection('users').doc(window._uid).collection('snapshots').doc(fmtShort(TODAY)).set(snapshot).catch(console.error);
+};
+
+function showLoading(msg){
+  document.getElementById('loading-text').textContent=msg||'Loading...';
+  document.getElementById('loading-screen').style.display='flex';
+}
+function hideLoading(){
+  document.getElementById('loading-screen').style.display='none';
+}
+</script>
+
 <script>
 // ── DATE HELPERS ──────────────────────────────────────────────
-const TODAY = new Date();
-const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DOW_NAMES = ['sun','mon','tue','wed','thu','fri','sat'];
-const DOW_BG = {sun:'#e67e22',mon:'#2980b9',tue:'#6d4c41',wed:'#ecf0f1',thu:'#f1c40f',fri:'#8e44ad',sat:'#27ae60'};
-const DOW_FG = {sun:'#fff',mon:'#fff',tue:'#fff',wed:'#222',thu:'#222',fri:'#fff',sat:'#fff'};
-
+const TODAY=new Date();
+const DAYS_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW_NAMES=['sun','mon','tue','wed','thu','fri','sat'];
+const DOW_BG={sun:'#e67e22',mon:'#2980b9',tue:'#6d4c41',wed:'#ecf0f1',thu:'#f1c40f',fri:'#8e44ad',sat:'#27ae60'};
+const DOW_FG={sun:'#fff',mon:'#fff',tue:'#fff',wed:'#222',thu:'#222',fri:'#fff',sat:'#fff'};
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function fmtShort(d){return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
-function fmtMed(d){return `${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}`;}
-function fmtFull(d){return `${DAYS_SHORT[d.getDay()]} ${fmtShort(d)}`;}
-function dowClass(d){return 'day-'+DOW_NAMES[d.getDay()];}
+function fmtShort(d){return`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
+function fmtFull(d){return`${DAYS_SHORT[d.getDay()]} ${fmtShort(d)}`;}
+function dowClass(d){return'day-'+DOW_NAMES[d.getDay()];}
 function dowBg(d){return DOW_BG[DOW_NAMES[d.getDay()]];}
 function dowFg(d){return DOW_FG[DOW_NAMES[d.getDay()]];}
+const YEST=addDays(TODAY,-1);
+const COLOR_OFFSETS={la:0,d4:1,d3:2,d2:3,d1:4};
+function dayColor(key){return addDays(TODAY,COLOR_OFFSETS[key]||0);}
 
-// Cakes: D1=+7, D2=+6, D3=+5, D4=+4, LA=today
-const CAKE_DAYS = [
+const CAKE_DAYS=[
   {key:'d1',label:'Day 1',offset:7},
   {key:'d2',label:'Day 2',offset:6},
   {key:'d3',label:'Day 3',offset:5},
   {key:'d4',label:'Day 4',offset:4},
-  {key:'la',label:'LA',  offset:0},
+  {key:'la',label:'LA',offset:0},
 ];
-// Breads: D1=+6, D2=+5, D3=+4, D4=+3, LA=today
-const BREAD_DAYS = [
+const BREAD_DAYS=[
   {key:'d1',label:'Day 1',offset:6},
   {key:'d2',label:'Day 2',offset:5},
   {key:'d3',label:'Day 3',offset:4},
   {key:'d4',label:'Day 4',offset:3},
-  {key:'la',label:'LA',  offset:0},
+  {key:'la',label:'LA',offset:0},
 ];
 
-// ── PRODUCT LISTS ─────────────────────────────────────────────
-const CAKE_PRODUCTS = [
+// ── DEFAULT PRODUCT LISTS ─────────────────────────────────────
+window.CAKE_PRODUCTS=[
   {group:'JUNIOR'},
-  {code:'BF JR',   cutoff:'-3 days'},{code:'CBC JR',  cutoff:'-3 days'},
-  {code:'UC JR',   cutoff:'-3 days'},{code:'MBC JR',  cutoff:'-3 days'},
-  {code:'TCC JR',  cutoff:'-3 days'},
+  {code:'BF JR',cutoff:'-3 days'},{code:'CBC JR',cutoff:'-3 days'},
+  {code:'UC JR',cutoff:'-3 days'},{code:'MBC JR',cutoff:'-3 days'},
+  {code:'TCC JR',cutoff:'-3 days'},
   {group:'PETITE'},
-  {code:'BF PT',   cutoff:'-3 days'},{code:'CBC PT',  cutoff:'-3 days'},
-  {code:'TCC PT',  cutoff:'-3 days'},{code:'MBC PT',  cutoff:'-3 days'},
-  {code:'MDLC PT', cutoff:'-3 days'},{code:'UC PT',   cutoff:'-3 days'},
+  {code:'BF PT',cutoff:'-3 days'},{code:'CBC PT',cutoff:'-3 days'},
+  {code:'TCC PT',cutoff:'-3 days'},{code:'MBC PT',cutoff:'-3 days'},
+  {code:'MDLC PT',cutoff:'-3 days'},{code:'UC PT',cutoff:'-3 days'},
   {group:'REGULAR'},
-  {code:'BF REG',  cutoff:'-3 days'},{code:'CBC REG', cutoff:'-3 days'},
-  {code:'CHBC REG',cutoff:'-3 days'},{code:'CM REG',  cutoff:'-3 days'},
-  {code:'MBC REG', cutoff:'-3 days'},{code:'MDLC REG',cutoff:'-3 days'},
-  {code:'TCC REG', cutoff:'-3 days'},{code:'UC REG',  cutoff:'-3 days'},
+  {code:'BF REG',cutoff:'-3 days'},{code:'CBC REG',cutoff:'-3 days'},
+  {code:'CM REG',cutoff:'-3 days'},{code:'MBC REG',cutoff:'-3 days'},
+  {code:'MDLC REG',cutoff:'-3 days'},{code:'TCC REG',cutoff:'-3 days'},
+  {code:'UC REG',cutoff:'-3 days'},
   {group:'ROLLS'},
-  {code:'CRL',     cutoff:'-3 days'},{code:'MCRL F 1',cutoff:'-3 days'},
-  {code:'MOCRLF',  cutoff:'-3 days'},{code:'UCRL F',  cutoff:'-3 days'},
-  {code:'TCRL F',  cutoff:'-3 days'},{code:'TCRL H',  cutoff:'-3 days'},
+  {code:'CRL',cutoff:'-3 days'},{code:'MCRL F 1',cutoff:'-3 days'},
+  {code:'MOCRLF',cutoff:'-3 days'},{code:'UCRL F',cutoff:'-3 days'},
+  {code:'TCRL F',cutoff:'-3 days'},{code:'TCRL H',cutoff:'-3 days'},
   {group:'DEDICATION CAKES'},
-  {code:'RDC JR',  cutoff:'-3 days'},{code:'CDC JR',  cutoff:'-3 days'},
-  {code:'CDC MED', cutoff:'-3 days'},{code:'CDC L',   cutoff:'-3 days'},
-  {code:'MDC JR',  cutoff:'-3 days'},{code:'MDC MED', cutoff:'-3 days'},
-  {code:'CADC JR 1',cutoff:'-3 days'},{code:'CADC MED', cutoff:'-3 days'},
-  {code:'CMDC JR',cutoff:'-3 days'},
-  {code:'CMDC MED',cutoff:'-3 days'},{code:'SCHDC JR',cutoff:'-3 days'},
-  {code:'SCHDC MED',cutoff:'-3 days'},
+  {code:'RDC JR',cutoff:'-3 days'},{code:'CDC JR',cutoff:'-3 days'},
+  {code:'CDC MED',cutoff:'-3 days'},{code:'CDC L',cutoff:'-3 days'},
+  {code:'MDC JR',cutoff:'-3 days'},{code:'MDC MED',cutoff:'-3 days'},
+  {code:'CADC JR 1',cutoff:'-3 days'},{code:'CADC MED',cutoff:'-3 days'},
+  {code:'CMDC JR',cutoff:'-3 days'},{code:'CMDC MED',cutoff:'-3 days'},
+  {code:'SCHDC JR',cutoff:'-3 days'},{code:'SCHDC MED',cutoff:'-3 days'},
   {group:'ICING'},
   {code:'BIL',cutoff:'-1 day'},{code:'RIL',cutoff:'-1 day'},
   {code:'WIL',cutoff:'-1 day'},{code:'HALF CHERRIES',cutoff:''},
   {code:'BUTTER PUTO',cutoff:''},
 ];
 
-const BREAD_PRODUCTS = [
+window.BREAD_PRODUCTS=[
   {group:'PBDs'},
-  {code:'BCR-S',   cutoff:'-2 days'},{code:'BCRLF',   cutoff:'-2 days'},
-  {code:'BM',      cutoff:'-2 days'},{code:'CHCS',    cutoff:'-2 days'},
-  {code:'CHM',     cutoff:'-2 days'},{code:'CPBCS',   cutoff:'-2 days'},
-  {code:'CRK',     cutoff:'-2 days'},{code:'DDC SLC', cutoff:'-2 days'},
-  {code:'ENS',     cutoff:'-2 days'},{code:'MC-L',    cutoff:'-2 days'},
-  {code:'MC-S',    cutoff:'-2 days'},{code:'MCRN',    cutoff:'-2 days'},
-  {code:'MM',      cutoff:'-2 days'},{code:'MMC SLC', cutoff:'-2 days'},
-  {code:'RVCS',    cutoff:'-2 days'},{code:'SCS',     cutoff:'-2 days'},
-  {code:'Tai-S',   cutoff:'-2 days'},{code:'TAILF',   cutoff:'-2 days'},
-  {code:'UM',      cutoff:'-2 days'},{code:'UMC SLC', cutoff:'-2 days'},
-  {code:'UBENS',   cutoff:'-1 day'},
+  {code:'BCR-S',cutoff:'-2 days'},{code:'BCRLF',cutoff:'-2 days'},
+  {code:'BM',cutoff:'-2 days'},{code:'CHCS',cutoff:'-2 days'},
+  {code:'CHM',cutoff:'-2 days'},{code:'CPBCS',cutoff:'-2 days'},
+  {code:'CRK',cutoff:'-2 days'},{code:'DDC SLC',cutoff:'-2 days'},
+  {code:'ENS',cutoff:'-2 days'},{code:'MC-L',cutoff:'-2 days'},
+  {code:'MC-S',cutoff:'-2 days'},{code:'MCRN',cutoff:'-2 days'},
+  {code:'MM',cutoff:'-2 days'},{code:'MMC SLC',cutoff:'-2 days'},
+  {code:'RVCS',cutoff:'-2 days'},{code:'SCS',cutoff:'-2 days'},
+  {code:'Tai-S',cutoff:'-2 days'},{code:'TAILF',cutoff:'-2 days'},
+  {code:'UM',cutoff:'-2 days'},{code:'UMC SLC',cutoff:'-2 days'},
+  {code:'UBENS',cutoff:'-1 day'},
   {group:'CCS / FB'},
-  {code:'CCS',     cutoff:'-3 days'},{code:'FB',      cutoff:'-3 days'},
-
+  {code:'CCS',cutoff:'-3 days'},{code:'FB',cutoff:'-3 days'},
   {group:'PASTRY PACKS'},
-  {code:'BM 5',   cutoff:'', mult:5,  pack:true, targets:['BM'],  targetMult:[1]},
-  {code:'BM 10',  cutoff:'', mult:10, pack:true, targets:['BM'],  targetMult:[1]},
-  {code:'ENS 4',  cutoff:'', mult:4,  pack:true, targets:['ENS'], targetMult:[1]},
-  {code:'ENS 8',  cutoff:'', mult:8,  pack:true, targets:['ENS'], targetMult:[1]},
-  {code:'CS 5',   cutoff:'', mult:1,  pack:true, targets:['RVCS','CHCS','DDC SLC','MMC SLC','UMC SLC'], targetMult:[1,1,1,1,1]},
-  {code:'CS 8',   cutoff:'', mult:1,  pack:true, targets:['RVCS','CHCS','DDC SLC','MMC SLC','UMC SLC','CPBCS','SCS'], targetMult:[1,1,1,1,1,1,1]},
-  {code:'ASMON',  cutoff:'', mult:1,  pack:true, targets:['BM','MM','CHM','UM'], targetMult:[2,1,1,1]},
+  {code:'BM 5',cutoff:'',mult:5,pack:true,targets:['BM'],targetMult:[1]},
+  {code:'BM 10',cutoff:'',mult:10,pack:true,targets:['BM'],targetMult:[1]},
+  {code:'ENS 4',cutoff:'',mult:4,pack:true,targets:['ENS'],targetMult:[1]},
+  {code:'ENS 8',cutoff:'',mult:8,pack:true,targets:['ENS'],targetMult:[1]},
+  {code:'CS 5',cutoff:'',mult:1,pack:true,targets:['RVCS','CHCS','DDC SLC','MMC SLC','UMC SLC'],targetMult:[1,1,1,1,1]},
+  {code:'CS 8',cutoff:'',mult:1,pack:true,targets:['RVCS','CHCS','DDC SLC','MMC SLC','UMC SLC','CPBCS','SCS'],targetMult:[1,1,1,1,1,1,1]},
+  {code:'ASMON',cutoff:'',mult:1,pack:true,targets:['BM','MM','CHM','UM'],targetMult:[2,1,1,1]},
 ];
 
-const POLV_PRODUCTS = [
+window.POLV_PRODUCTS=[
   {group:'POLVORON'},
-  {code:'PVNPE 8',cutoff:'-5 days'},{code:'PVNPN 8',  cutoff:'-5 days'},
-  {code:'PVNCL 10',cutoff:'-5 days'},{code:'PVNCL 16', cutoff:'-5 days'},
+  {code:'PVNPE 8',cutoff:'-5 days'},{code:'PVNPN 8',cutoff:'-5 days'},
+  {code:'PVNCL 10',cutoff:'-5 days'},{code:'PVNCL 16',cutoff:'-5 days'},
   {code:'PVNASTD15',cutoff:'-5 days'},{code:'PVNASTD22',cutoff:'-5 days'},
 ];
 
-// ── ADQ MAPPING from sales report product name → DIC code ────
-// Format: [salesReportKeyword (lowercase), dicCode, packSize]
-const ADQ_MAP = [
-  // Cakes Junior
-  ['black forest junior cake',    'BF JR',   1],
-  ['chocolate bliss junior',      'CBC JR',  1],
-  ['ube bloom cake junior',       'UC JR',   1],
-  ['mango blossom cake junior',   'MBC JR',  1],
-  ['tiramisu cloud junior',       'TCC JR',  1],
-  // Cakes Petite
-  ['black forest petite',         'BF PT',   1],
-  ['chocolate bliss petite',      'CBC PT',  1],
-  ['tiramisu cloud petite',       'TCC PT',  1],
-  ['mango blossom cake petite',   'MBC PT',  1],
-  ['mochaccino delight petite',   'MDLC PT', 1],
-  ['ube bloom cake petite',       'UC PT',   1],
-  ['ube bloom petite',            'UC PT',   1],
-  ['caramel delight petite',      'UC PT',   0],
-  // Cakes Regular
-  ['black forest regular',        'BF REG',  1],
-  ['chocolate bliss regular',     'CBC REG', 1],
-  ['chocolate hazelnut bliss',    'CHBC REG',1],
-  ['cm reg-chocolate mousse',     'CM REG',  1],
-  ['mango blossom cake regular',  'MBC REG', 1],
-  ['mochaccino delight regular',  'MDLC REG',1],
-  ['tmc reg-tiramisu',            'TCC REG', 1],
-  ['ube bloom cake regular',      'UC REG',  1],
-  ['uc reg-ube bloom',            'UC REG',  1],
-  // Rolls
-  ['triple chocolate roll full',  'TCRL F',  1],
-  ['triple chocolate roll half',  'TCRL H',  1],
-  ['chocolate roll full',         'CRL',     1],
-  ['milky caramel roll full',     'MCRL F 1',1],
-  ['mocrl full-mocha roll',       'MOCRLF',  1],
-  ['mocha roll',                  'MOCRLF',  1],
-  ['ucrl full-ube and cream roll','UCRL F',  1],
-  // Dedication Cakes
-  ['round rainbow chocolate dedication','RDC JR',1],
-  ['round rainbow dedication',    'RDC JR',  1],
-  // Dedication Cakes
-  ['round rainbow chocolate dedication','RDC JR',1],
-  ['round rainbow dedication',    'RDC JR',  1],
-  ['cdc 12x12',                   'CDC L',   1],
-  ['cdc 8x12',                    'CDC MED', 1],
-  ['round chocolate dedication',  'CDC JR',  1],
-  ['mdc8x12',                     'MDC MED', 1],
-  ['round mocha dedication',      'MDC JR',  1],
-  ['round caramel dedication',    'CADC JR 1',1],
+window.ADQ_MAP=[
+  ['black forest junior cake','BF JR',1],['chocolate bliss junior','CBC JR',1],
+  ['ube bloom cake junior','UC JR',1],['mango blossom cake junior','MBC JR',1],
+  ['tiramisu cloud junior','TCC JR',1],
+  ['black forest petite','BF PT',1],['chocolate bliss petite','CBC PT',1],
+  ['tiramisu cloud petite','TCC PT',1],['mango blossom cake petite','MBC PT',1],
+  ['mochaccino delight petite','MDLC PT',1],['ube bloom cake petite','UC PT',1],
+  ['ube bloom petite','UC PT',1],
+  ['black forest regular','BF REG',1],['chocolate bliss regular','CBC REG',1],
+  ['cm reg-chocolate mousse','CM REG',1],['mango blossom cake regular','MBC REG',1],
+  ['mochaccino delight regular','MDLC REG',1],['tmc reg-tiramisu','TCC REG',1],
+  ['ube bloom cake regular','UC REG',1],['uc reg-ube bloom','UC REG',1],
+  ['triple chocolate roll full','TCRL F',1],['triple chocolate roll half','TCRL H',1],
+  ['chocolate roll full','CRL',1],['milky caramel roll full','MCRL F 1',1],
+  ['mocrl full-mocha roll','MOCRLF',1],['mocha roll','MOCRLF',1],
+  ['ucrl full-ube and cream roll','UCRL F',1],
+  ['round rainbow chocolate dedication','RDC JR',1],['round rainbow dedication','RDC JR',1],
+  ['cdc 12x12','CDC L',1],['cdc 8x12','CDC MED',1],
+  ['round chocolate dedication','CDC JR',1],['mdc8x12','MDC MED',1],
+  ['round mocha dedication','MDC JR',1],['round caramel dedication','CADC JR 1',1],
   ['supreme caramel-mocha dedication cake','CMDC JR',1],
   ['supreme caramel-mocha dc 8x12','CMDC MED',1],
   ['round supreme chocolate-caramel dc 8','SCHDC JR',1],
   ['supreme chocolate-caramel dc 8x12','SCHDC MED',1],
-  // Breads/PBDs
-  ['banana crunch(2014)',         'BCR-S',   1],
-  ['banana crunch loaf',          'BCRLF',   1],
-  ['butter mamon(2014) pack 10s', 'BM',      10],
-  ['butter mamon pack 5s',        'BM',      5],
-  ['butter mamon(2014)',          'BM',      1],
-  ['choco cake slice 2024',       'CHCS',    1],
-  ['cheesy mamon(2019)',          'CHM',     1],
-  ['choco peanut butter cake slice','CPBCS', 1],
-  ['choco crinkles(2014)',        'CRK',     1],
-  ['double dutch cake slice',     'DDC SLC', 1],
-  ['ensaimada pack 8s',           'ENS',     8],
-  ['ensaimada 4s pack',           'ENS',     4],
-  ['cheesy ensaimada pbd box 12s','ENS',     12],
-  ['cheesy ensaimada - luzon',    'ENS',     1],
-  ['cheesy ensaimada(mc)',        'ENS',     1],
-  ['moist chocolate loaf',        'MC-L',    1],
-  ['moist choco slice(2014)',     'MC-S',    1],
-  ['macaroons(2014)',             'MCRN',    1],
-  ['mocha mamon(2014)',           'MM',      1],
-  ['mocha marble cake slice',     'MMC SLC', 1],
-  ['red velvet cake slice',       'RVCS',    1],
-  ['strawberry cake slice',       'SCS',     1],
-  ['taisan slice',                'Tai-S',   1],
-  ['taisan loaf',                 'TAILF',   1],
-  ['ube mamon(2014)',             'UM',      1],
-  ['ube marble cake slice',       'UMC SLC', 1],
-  ['ube ensaimada',               'UBENS',   1],
-  ['chiffon cake slice',          'CCS',     1],
-  ['fudgy brownies',              'FB',      1],
-  // Polvoron
-  ['peanut polvoron 8s',          'PVNPE 8', 1],
-  ['pinipig polvoron 8s',         'PVNPN 8', 1],
-  ['polvoron classic 10s',        'PVNCL 10',1],
-  ['classic polvoron 16s',        'PVNCL 16',1],
-  ['polvoron assorted 15s',       'PVNASTD15',1],
-  ['polvoron assorted 22s',       'PVNASTD22',1],
-  // Accessories
-  ['butter puto luzon pack 10s',  'BUTTER PUTO',10],
+  ['banana crunch(2014)','BCR-S',1],['banana crunch loaf','BCRLF',1],
+  ['butter mamon(2014) pack 10s','BM',10],['butter mamon pack 5s','BM',5],
+  ['butter mamon(2014)','BM',1],
+  ['choco cake slice 2026','CHCS',1],['choco cake slice 2024','CHCS',1],
+  ['cheesy mamon(2019)','CHM',1],
+  ['choco peanut cake slice 2026','CPBCS',1],['choco peanut butter cake slice','CPBCS',1],
+  ['choco crinkles(2014)','CRK',1],
+  ['double dutch cake slice 2026','DDC SLC',1],['double dutch cake slice','DDC SLC',1],
+  ['ensaimada pack 8s','ENS',8],['ensaimada 4s pack','ENS',4],
+  ['cheesy ensaimada pbd box 12s','ENS',12],['cheesy ensaimada - luzon','ENS',1],
+  ['cheesy ensaimada(mc)','ENS',1],
+  ['moist chocolate loaf','MC-L',1],['moist choco slice(2014)','MC-S',1],
+  ['macaroons(2014)','MCRN',1],['mocha mamon(2014)','MM',1],
+  ['mocha marble cake slice 2026','MMC SLC',1],['mocha marble cake slice','MMC SLC',1],
+  ['red velvet cake slice 2026','RVCS',1],['red velvet cake slice','RVCS',1],
+  ['strawberry cake slice 2026','SCS',1],['strawberry cake slice','SCS',1],
+  ['taisan slice','Tai-S',1],['taisan loaf','TAILF',1],
+  ['ube mamon(2014)','UM',1],
+  ['ube marble cake slice 2026','UMC SLC',1],['ube marble cake slice','UMC SLC',1],
+  ['ube ensaimada','UBENS',1],
+  ['chiffon cake slice 2026','CCS',1],['chiffon cake slice','CCS',1],
+  ['fudgy brownies','FB',1],
+  ['peanut polvoron 8s','PVNPE 8',1],['pinipig polvoron 8s','PVNPN 8',1],
+  ['polvoron classic 10s','PVNCL 10',1],['classic polvoron 16s','PVNCL 16',1],
+  ['polvoron assorted 15s','PVNASTD15',1],['polvoron assorted 22s','PVNASTD22',1],
+  ['butter puto luzon pack 10s','BUTTER PUTO',10],
 ];
 
-// Skip these keywords entirely
-const ADQ_SKIP = ['assorted cake slice','assorted ensaimada 5s','assorted mamon pack','assorted pbd','assorted pbdbox',
-  'candle','topper','bottled water','gift check','food sales','handling fee','free bread','free fudgy',
-  'caramel delight petite(free)','cake + butter mamon','cake,reg','cake,jr','cake,petite','cdlc reg',
-  'round rainbow','sharetreats','princess theme','rainbow dino','raisin bread'];
+const ADQ_SKIP=['assorted cake slice','assorted ensaimada 5s','assorted mamon pack','assorted pbd',
+  'candle','topper','bottled water','gift check','food sales','handling fee','free bread',
+  'caramel delight petite(free)','cake + butter mamon','raisin bread'];
 
-// ── DELIVERY MAPPING ─────────────────────────────────────────
-const DEL_MAP = [
-  ['cake,dc,large,2022 chocolate,12x12,cdc',    'CDC L'],
-  ['cake,dc,med,2022 chocolate,8x12,cdc',       'CDC MED'],
-  ['cake,dc,med,2023 mocha,8x12,mdc',           'MDC MED'],
-  ['cake,dc,medium,caramel,cadc,8x12',          'CADC JR 1'],
-  ['cake,dc,medium,chococaramel,schdc,8x12',    'SCHDC MED'],
-  ['cake,dc,medium,caramelmocha,cmdc,8x12',     'CMDC MED'],
-  ['cake,dc,round,chocolate,8dia,cdc',          'CDC JR'],
-  ['cake,dc,round,mocha,mdc,8dia',              'MDC JR'],
-  ['cake,dc,round,caramel,cadc,8dia',           'CADC JR 1'],
-  ['cake,dc,round,chococaramel,schdc,8dia',     'SCHDC JR'],
-  ['cake,dc,round,caramelmocha,cmdc,8dia',      'CMDC JR'],
-  ['cake,dc,round,choco rainbow',               'RDC JR'],
-  ['cake,reg,black forest',                     'BF REG'],
-  ['cake,reg,chocolate cake',                   'CBC REG'],
-  ['cake,reg,ube bloom cake 2026',              'UC REG'],
-  ['cake,reg,tiramisu cloud cake',              'TCC REG'],
-  ['cake,reg,choco mousse',                     'CM REG'],
-  ['cake,reg,mango blossom',                    'MBC REG'],
-  ['cake,reg,mochaccino delight',               'MDLC REG'],
-  ['cake,reg,chocolate hazelnut',               'CHBC REG'],
-  ['cake,jr,black forest',                      'BF JR'],
-  ['cake,jr,chocolate cake',                    'CBC JR'],
-  ['cake,jr,ube bloom cake 2026',               'UC JR'],
-  ['cake,jr,mango blossom',                     'MBC JR'],
-  ['cake,jr,tiramisu cloud cake',               'TCC JR'],
-  ['cake,petite,black forest',                  'BF PT'],
-  ['cake,petite,chocolate bliss',               'CBC PT'],
-  ['cake,petite,mango blossom',                 'MBC PT'],
-  ['cake,petite,ube bloom cake 2026',           'UC PT'],
-  ['cake,petite,mochaccino delight',            'MDLC PT'],
-  ['cake,petite,tiramisu cloud cake',           'TCC PT'],
-  ['cake,full,tcrl 2025',                       'TCRL F'],
-  ['cake,full,crl 2025',                        'CRL'],
-  ['cake,full,mcrl 2024',                       'MCRL F 1'],
-  ['cake,full,mocha roll',                      'MOCRLF'],
-  ['cake,full,ube roll',                        'UCRL F'],
-  ['cake,half,tcrl 2025',                       'TCRL H'],
-  ['pastry,ensai,imprvd',                       'ENS'],
-  ['pastry,ensai,ube',                          'UBENS'],
-  ['pastry,butter mamon,2014',                  'BM'],
-  ['pastry,cheesy mamon new',                   'CHM'],
-  ['pastry,ube mamon2014',                      'UM'],
-  ['pastry,mocha mamon2014',                    'MM'],
-  ['pastry, taisan, slice',                     'Tai-S'],
-  ['pastry,taisan loaf',                        'TAILF'],
-  ['pastry, moist choco, loaf',                 'MC-L'],
-  ['pastry,moist choco slice2014',              'MC-S'],
-  ['pastry, banana crunch, loaf',               'BCRLF'],
-  ['pastry,banana crunch2014',                  'BCR-S'],
-  ['pastry,choco crinkles2014',                 'CRK'],
-  ['pastry,macaroons2014',                      'MCRN'],
-  ['pastry,strawberry cake slice',              'SCS'],
-  ['pastry,choco-peanut butter cake slice',     'CPBCS'],
-  ['pastry,double dutch cake slice new',        'DDC SLC'],
-  ['pastry,chiffon cake slice new',             'CCS'],
-  ['pastry,choco cake slice new',               'CHCS'],
-  ['pastry,ube marble cake slice new',          'UMC SLC'],
-  ['pastry,mocha marble cake slice new',        'MMC SLC'],
-  ['pastry,red velvet slice new',               'RVCS'],
-  ['pastry,classic white bread,18pcs',          'BCR-S'],
-  ['pastry,classic white bread,9pcs',           'BCRLF'],
-  ['pastry,bread rolls,choco',                  'CHM'],
-  ['pastry, brownies',                          'FB'],
-  ['pastry,butter puto',                        'BUTTER PUTO'],
-  ['polvoron,assorted,15pcs',                   'PVNASTD15'],
-  ['polvoron,assorted,22pcs',                   'PVNASTD22'],
-  ['polvoron,classic,10pcs',                    'PVNCL 10'],
-  ['polvoron,classic,16pcs',                    'PVNCL 16'],
-  ['polvoron,peanut',                           'PVNPE 8'],
-  ['polvoron,pinipig',                          'PVNPN 8'],
-  ['pastry,icing,bc, lettering,blue',           'BIL'],
-  ['pastry,icing,bc,lettering,red',             'RIL'],
-  ['pastry,icing,bc,lettering,white',           'WIL'],
-  ['accessory,half maraschino',                 'HALF CHERRIES'],
+window.DEL_MAP=[
+  ['cake,dc,large,2022 chocolate,12x12,cdc','CDC L'],
+  ['cake,dc,med,2022 chocolate,8x12,cdc','CDC MED'],
+  ['cake,dc,med,2023 mocha,8x12,mdc','MDC MED'],
+  ['cake,dc,medium,caramel,cadc,8x12','CADC JR 1'],
+  ['cake,dc,medium,chococaramel,schdc,8x12','SCHDC MED'],
+  ['cake,dc,medium,caramelmocha,cmdc,8x12','CMDC MED'],
+  ['cake,dc,round,chocolate,8dia,cdc','CDC JR'],
+  ['cake,dc,round,mocha,mdc,8dia','MDC JR'],
+  ['cake,dc,round,caramel,cadc,8dia','CADC JR 1'],
+  ['cake,dc,round,chococaramel,schdc,8dia','SCHDC JR'],
+  ['cake,dc,round,caramelmocha,cmdc,8dia','CMDC JR'],
+  ['cake,dc,round,choco rainbow','RDC JR'],
+  ['cake,reg,black forest','BF REG'],['cake,reg,chocolate cake','CBC REG'],
+  ['cake,reg,ube bloom cake 2026','UC REG'],['cake,reg,tiramisu cloud cake','TCC REG'],
+  ['cake,reg,choco mousse','CM REG'],['cake,reg,mango blossom','MBC REG'],
+  ['cake,reg,mochaccino delight','MDLC REG'],
+  ['cake,jr,black forest','BF JR'],['cake,jr,chocolate cake','CBC JR'],
+  ['cake,jr,ube bloom cake 2026','UC JR'],['cake,jr,mango blossom','MBC JR'],
+  ['cake,jr,tiramisu cloud cake','TCC JR'],
+  ['cake,petite,black forest','BF PT'],['cake,petite,chocolate bliss','CBC PT'],
+  ['cake,petite,mango blossom','MBC PT'],['cake,petite,ube bloom cake 2026','UC PT'],
+  ['cake,petite,mochaccino delight','MDLC PT'],['cake,petite,tiramisu cloud cake','TCC PT'],
+  ['cake,full,tcrl 2025','TCRL F'],['cake,full,crl 2025','CRL'],
+  ['cake,full,mcrl 2024','MCRL F 1'],['cake,full,mocha roll','MOCRLF'],
+  ['cake,full,ube roll','UCRL F'],['cake,half,tcrl 2025','TCRL H'],
+  ['pastry,ensai,imprvd','ENS'],['pastry,ensai,ube','UBENS'],
+  ['pastry,butter mamon,2014','BM'],['pastry,cheesy mamon new','CHM'],
+  ['pastry,ube mamon2014','UM'],['pastry,mocha mamon2014','MM'],
+  ['pastry, taisan, slice','Tai-S'],['pastry,taisan loaf','TAILF'],
+  ['pastry, moist choco, loaf','MC-L'],['pastry,moist choco slice2014','MC-S'],
+  ['pastry, banana crunch, loaf','BCRLF'],['pastry,banana crunch2014','BCR-S'],
+  ['pastry,choco crinkles2014','CRK'],['pastry,macaroons2014','MCRN'],
+  ['pastry,strawberry cake slice 2026','SCS'],['pastry,strawberry cake slice','SCS'],
+  ['pastry,choco peanut cake slice 2026','CPBCS'],['pastry,choco-peanut butter cake slice','CPBCS'],
+  ['pastry,double dutch cake slice 2026','DDC SLC'],['pastry,double dutch cake slice new','DDC SLC'],
+  ['pastry,chiffon cake slice 2026','CCS'],['pastry,chiffon cake slice new','CCS'],
+  ['pastry,choco cake slice 2026','CHCS'],['pastry,choco cake slice new','CHCS'],
+  ['pastry,ube marble cake slice 2026','UMC SLC'],['pastry,ube marble cake slice new','UMC SLC'],
+  ['pastry,mocha marble cake slice 2026','MMC SLC'],['pastry,mocha marble cake slice new','MMC SLC'],
+  ['pastry,red velvet cake slice 2026','RVCS'],['pastry,red velvet slice new','RVCS'],
+  ['pastry,classic white bread,18pcs','BCR-S'],['pastry,classic white bread,9pcs','BCRLF'],
+  ['pastry,bread rolls,choco','CHM'],['pastry, brownies','FB'],
+  ['pastry,butter puto','BUTTER PUTO'],
+  ['polvoron,assorted,15pcs','PVNASTD15'],['polvoron,assorted,22pcs','PVNASTD22'],
+  ['polvoron,classic,10pcs','PVNCL 10'],['polvoron,classic,16pcs','PVNCL 16'],
+  ['polvoron,peanut','PVNPE 8'],['polvoron,pinipig','PVNPN 8'],
+  ['pastry,icing,bc, lettering,blue','BIL'],['pastry,icing,bc,lettering,red','RIL'],
+  ['pastry,icing,bc,lettering,white','WIL'],['accessory,half maraschino','HALF CHERRIES'],
 ];
 
 // ── STATE ─────────────────────────────────────────────────────
-const counts = {cake:{},bread:{},polv:{}};
-const sold   = {cake:{},bread:{},polv:{}};  // DIC SOLD counts
-const delData = {del1:{},del2:{},del3:{}};
-let adqData = {};
+window.counts={cake:{},bread:{},polv:{}};
+window.soldCounts={cake:{},bread:{},polv:{}};
+window.adqData={};
+window.salesData={};
+window.pstData={}; // product sold today — memory only
+const delData={del1:{},del2:{},del3:{}};
+let yesterdayEnding={}; // loaded from firebase (yesterday's counts)
 
-// ── PASSWORD ─────────────────────────────────────────────────
-function checkPw(){
-  if(document.getElementById('pw-input').value==='Max0528'){
-    document.getElementById('gate').style.display='none';
-    document.getElementById('app').style.display='block';
-    init();
-  } else {
-    document.getElementById('gate-error').style.display='block';
-  }
+// ── NAVIGATION ───────────────────────────────────────────────
+function switchMain(name){
+  document.querySelectorAll('.main-tab-btn').forEach((b,i)=>b.classList.toggle('active',['dic','sales'][i]===name));
+  document.querySelectorAll('#app>.sub-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('main-'+name).classList.add('active');
 }
-document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw();});
 
-// ── TAB SWITCH ───────────────────────────────────────────────
-function switchTab(name){
-  const names=['dic','prodsold','delivery','sales','dicsold','print'];
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
-  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
+const subState={dic:'daily',sales:'salesday'};
+function switchSub(main,name){
+  subState[main]=name;
+  // Fix active button by matching data attribute
+  const container=document.getElementById('main-'+main);
+  if(container){
+    container.querySelectorAll('.sub-btn').forEach(b=>{
+      b.classList.toggle('active',b.getAttribute('onclick').includes("'"+name+"'"));
+    });
+    container.querySelectorAll('.sub-content').forEach(c=>c.classList.remove('active'));
+    const el=document.getElementById('sub-'+name);
+    if(el)el.classList.add('active');
+  }
 }
 
 // ── INIT ─────────────────────────────────────────────────────
-function init(){
-  const d=TODAY;
-  document.getElementById('today-display').textContent=`${DAYS_SHORT[d.getDay()]} ${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-  // Delivery dates
-  document.getElementById('del1-date').textContent=fmtFull(addDays(d,1));
-  document.getElementById('del2-date').textContent=fmtFull(addDays(d,2));
-  document.getElementById('del3-date').textContent=fmtFull(addDays(d,3));
-  // Load saved ADQ
-  loadADQ();
-  // Build tables
-  buildTable('cake',CAKE_PRODUCTS,CAKE_DAYS,true);
-  buildTable('bread',BREAD_PRODUCTS,BREAD_DAYS,false);
-  buildTable('polv',POLV_PRODUCTS,BREAD_DAYS,false);
-  buildSoldTable('cake',CAKE_PRODUCTS,CAKE_DAYS,true);
-  buildSoldTable('bread',BREAD_PRODUCTS,BREAD_DAYS,false);
-  buildSoldTable('polv',POLV_PRODUCTS,BREAD_DAYS,false);
-  // Load saved sales
-  loadSales();
-  // Render PS table
+window.initApp=function(){
+  document.getElementById('today-display').textContent=
+    `${DAYS_SHORT[TODAY.getDay()]} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][TODAY.getMonth()]} ${TODAY.getDate()}, ${TODAY.getFullYear()}`;
+  document.getElementById('del1-date').textContent=fmtFull(addDays(TODAY,1));
+  document.getElementById('del2-date').textContent=fmtFull(addDays(TODAY,2));
+  document.getElementById('del3-date').textContent=fmtFull(addDays(TODAY,3));
+  buildTable('cake',window.CAKE_PRODUCTS,CAKE_DAYS,true);
+  buildTable('bread',window.BREAD_PRODUCTS,BREAD_DAYS,false);
+  buildTable('polv',window.POLV_PRODUCTS,BREAD_DAYS,false);
+  buildSoldTable();
   renderPSTable();
-}
+  loadSalesUI();
+  renderConfigPanel();
+};
 
-// ── BUILD TABLE ──────────────────────────────────────────────
+// ── SAFE CODE ─────────────────────────────────────────────────
+function safeCode(code){return code.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_\-]/g,'X');}
+
+// ── GET ADQ ───────────────────────────────────────────────────
 function getADQ(code){
-  const d=adqData[code];
-  if(!d) return {adq:0,min:0,max:0};
+  const d=window.adqData[code];
+  if(!d)return{adq:0,min:0,max:0};
   return d;
 }
 
-// Color offsets: D1=today+4, D2=today+3, D3=today+2, D4=today+1, LA=today
-const COLOR_OFFSETS={la:0,d4:1,d3:2,d2:3,d1:4};
-function dayColor(key){return addDays(TODAY,COLOR_OFFSETS[key]||0);}
-
+// ── BUILD TABLE ──────────────────────────────────────────────
 function buildTable(tid,products,days,colorDays){
   const thead=document.getElementById(tid+'-thead');
   const tbody=document.getElementById(tid+'-tbody');
-  // Header - display order: D1, D2, D3, D4, LA (no reverse needed, arrays already in this order)
+  if(!thead||!tbody)return;
   let th=`<tr><th>Product</th><th>Cut</th><th>ADQ</th><th>MIN</th><th>MAX</th>`;
   days.forEach(day=>{
-    const dt=addDays(TODAY,day.offset); // expiry date
-    const colorDt=dayColor(day.key);   // color from sequence
+    const dt=addDays(TODAY,day.offset);
+    const colorDt=dayColor(day.key);
     const cls=colorDays?dowClass(colorDt):'';
-    th+=`<th class="day-header ${cls}">${day.label}<br><span style="font-weight:400;font-size:.56rem">${fmtShort(dt)}</span></th>`;
+    th+=`<th class="day-header ${cls}">${day.label}<br><span style="font-weight:400;font-size:.54rem">${fmtShort(dt)}</span></th>`;
   });
-  th+=`<th>VAR</th><th>TOTAL</th><th>Del<br><span style="font-weight:400;font-size:.55rem">${fmtShort(addDays(TODAY,1))}</span></th><th>Del<br><span style="font-weight:400;font-size:.55rem">${fmtShort(addDays(TODAY,2))}</span></th><th>Forecast<br><span style="font-weight:400;font-size:.55rem">${fmtShort(addDays(TODAY,3))}</span></th></tr>`;
+  th+=`<th>VAR</th><th>Variance</th><th>TOTAL</th><th>Del<br><span style="font-weight:400;font-size:.52rem">${fmtShort(addDays(TODAY,1))}</span></th><th>Del<br><span style="font-weight:400;font-size:.52rem">${fmtShort(addDays(TODAY,2))}</span></th><th>Forecast<br><span style="font-weight:400;font-size:.52rem">${fmtShort(addDays(TODAY,3))}</span></th></tr>`;
   thead.innerHTML=th;
-  // Body
   let html='';
   products.forEach(p=>{
-    if(p.group){html+=`<tr class="group-row"><td colspan="15">${p.group}</td></tr>`;return;}
+    if(p.group){html+=`<tr class="group-row"><td colspan="16">${p.group}</td></tr>`;return;}
     if(p.pack){
-      // Pack product row
-      if(!counts[tid][p.code])counts[tid][p.code]={};
-      const c=counts[tid][p.code];
+      if(!window.counts[tid][p.code])window.counts[tid][p.code]={};
+      const c=window.counts[tid][p.code];
       const sc=safeCode(p.code);
       html+=`<tr id="row-${tid}-${sc}" style="background:rgba(245,166,35,.04)">
-        <td class="product-name" style="padding-left:20px!important;font-size:.65rem;color:var(--accent2)" onclick="openPackModal('${tid}','${p.code.replace(/'/g,"\\'")}','${p.mult}','${(p.targets||[]).join(',')}','${(p.targetMult||[]).join(',')}')">&nbsp;↳ ${p.code}</td>
-        <td class="cutoff">${p.cutoff||''}</td>
-        <td colspan="3" style="font-size:.6rem;color:var(--muted)">×${p.mult} → ${(p.targets||[]).join(', ')}</td>`;
+        <td class="product-name" style="padding-left:20px!important;font-size:.65rem;color:var(--accent2)" onclick="openPackModal('${tid}','${p.code.replace(/'/g,"\\'")}',${p.mult},'${(p.targets||[]).join(',')}','${(p.targetMult||[]).join(',')}')">&nbsp;↳ ${p.code}</td>
+        <td class="cutoff"></td><td colspan="3" style="font-size:.58rem;color:var(--muted)">×${p.mult}</td>`;
       ['d1','d2','d3','d4','la'].forEach(key=>{
         const raw=c[key]!==undefined&&c[key]!==''?c[key]:'';
-        const display=raw!==''?raw*p.mult:'';
+        const display=raw!==''?Number(raw)*p.mult:'';
         html+=`<td class="count-cell${display!==''&&display!==0?' has-value':''}" id="cell-${tid}-${sc}-${key}" style="font-size:.65rem">${display}</td>`;
       });
       const tot=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(c[k])||0)*p.mult,0);
-      html+=`<td class="var-cell" id="var-${tid}-${sc}"></td>
-        <td class="total-cell" id="tot-${tid}-${sc}" style="font-size:.65rem">${tot||''}</td>
-        <td colspan="3"></td></tr>`;
+      html+=`<td></td><td></td><td class="total-cell" id="tot-${tid}-${sc}">${tot||''}</td><td colspan="3"></td></tr>`;
       return;
     }
-    if(!counts[tid][p.code])counts[tid][p.code]={};
-    const c=counts[tid][p.code];
-    const {adq,min,max}=getADQ(p.code);
+    if(!window.counts[tid][p.code])window.counts[tid][p.code]={};
+    const c=window.counts[tid][p.code];
     const sc=safeCode(p.code);
+    const{adq,min,max}=getADQ(p.code);
     html+=`<tr id="row-${tid}-${sc}">
       <td class="product-name" onclick="openModal('${tid}','${p.code.replace(/'/g,"\\'")}','${p.cutoff}')">${p.code}</td>
       <td class="cutoff">${p.cutoff}</td>
@@ -686,11 +907,21 @@ function buildTable(tid,products,days,colorDays){
       <td id="min-${tid}-${sc}">${min?min.toFixed(1):''}</td>
       <td id="max-${tid}-${sc}">${max?max.toFixed(1):''}</td>`;
     ['d1','d2','d3','d4','la'].forEach(key=>{
-      const val=c[key]!==undefined&&c[key]!==''?c[key]:'';
-      html+=`<td class="count-cell${val!==''&&val!==0?' has-value':''}" id="cell-${tid}-${sc}-${key}">${val}</td>`;
+      const sv=window.soldCounts[tid][p.code]||{};
+      const raw=Number(c[key])||0;
+      const s=Number(sv[key])||0;
+      const net=raw-s;
+      html+=`<td class="count-cell${raw>0?' has-value':''}" id="cell-${tid}-${sc}-${key}">${raw||''}</td>`;
     });
-    const tot=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(c[k])||0),0);
-    html+=`<td class="var-cell" id="var-${tid}-${sc}">${c.var||''}</td>
+    const varVal=c.var;
+    const variance=calcVariance(tid,p.code);
+    const varStr=varVal===undefined||varVal===''?'':Number(varVal)<0?varVal:'+'+varVal;
+    const varColor=varVal===undefined||varVal===''?'':Number(varVal)<0?'#f87171':'#4ade80';
+    const varianceStr=variance===null?'':variance>0?'+'+variance:variance===0?'':String(variance);
+    const varianceColor=variance===null||variance===0?'':variance>0?'#4ade80':'#f87171';
+    const tot=calcProductTotal(tid,p.code);
+    html+=`<td class="var-cell" id="var-${tid}-${sc}" style="color:${varColor}">${varStr}</td>
+      <td class="variance-cell" id="variance-${tid}-${sc}" style="color:${varianceColor}">${varianceStr}</td>
       <td class="total-cell" id="tot-${tid}-${sc}">${tot||''}</td>
       <td class="del-cell" id="del1-${tid}-${sc}">${delData.del1[p.code]||''}</td>
       <td class="del-cell" id="del2-${tid}-${sc}">${delData.del2[p.code]||''}</td>
@@ -700,105 +931,48 @@ function buildTable(tid,products,days,colorDays){
   tbody.innerHTML=html;
 }
 
-function safeCode(code){return code.replace(/[\s]/g,'_').replace(/[^a-zA-Z0-9_\-]/g,'X');}
-
-// ── MODAL ────────────────────────────────────────────────────
-let MS={tid:null,code:null,active:null,vals:{}};
-
-function openModal(tid,code,cutoff){
-  MS={tid,code,active:null,vals:{}};
-  const existing=counts[tid][code]||{};
-  ['d1','d2','d3','d4','la','var'].forEach(k=>MS.vals[k]=existing[k]??'');
-  document.getElementById('modal-product-name').textContent=code;
-  document.getElementById('modal-cutoff').textContent=cutoff;
-  const days=tid==='cake'?CAKE_DAYS:BREAD_DAYS;
-  const colored=tid==='cake';
-  let html='';
-  ['d1','d2','d3','d4'].forEach(key=>{
-    const dayObj=days.find(d=>d.key===key);
-    const dt=addDays(TODAY,dayObj.offset); // expiry date
-    const colorDt=dayColor(key);           // color sequence from today
-    const bg=colored?dowBg(colorDt):'#0f3460';
-    const fg=colored?dowFg(colorDt):'#fff';
-    html+=`<div class="day-input-block" onclick="setActive('${key}')">
-      <div class="day-input-label" style="background:${bg};color:${fg}">${dayObj.label} · ${fmtShort(dt)}</div>
-      <div class="day-input-field" id="mi-${key}">${MS.vals[key]}</div></div>`;
+function calcProductTotal(tid,code){
+  const c=window.counts[tid][code]||{};
+  const sv=window.soldCounts[tid][code]||{};
+  const base=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(c[k])||0),0);
+  const soldTotal=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(sv[k])||0),0);
+  // Add pack contributions
+  const allProds=tid==='cake'?window.CAKE_PRODUCTS:tid==='bread'?window.BREAD_PRODUCTS:window.POLV_PRODUCTS;
+  let packTot=0;
+  allProds.forEach(p=>{
+    if(!p.pack)return;
+    const idx=(p.targets||[]).indexOf(code);
+    if(idx<0)return;
+    const tm=p.targetMult[idx]||1;
+    const pc=window.counts[tid][p.code]||{};
+    const psum=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(pc[k])||0),0);
+    packTot+=psum*p.mult*tm;
   });
-  const laDt=addDays(TODAY,0);
-  const laColorDt=dayColor('la');
-  const laBg=colored?dowBg(laColorDt):'#0f3460';
-  const laFg=colored?dowFg(laColorDt):'#fff';
-  html+=`<div class="day-input-block" onclick="setActive('la')">
-    <div class="day-input-label" style="background:${laBg};color:${laFg}">LA · ${fmtShort(laDt)}</div>
-    <div class="day-input-field" id="mi-la">${MS.vals.la}</div></div>`;
-  html+=`<div class="day-input-block" onclick="setActive('var')">
-    <div class="day-input-label neutral">VAR</div>
-    <div class="day-input-field" id="mi-var">${MS.vals.var}</div></div>`;
-  document.getElementById('modal-day-inputs').innerHTML=html;
-  document.getElementById('active-field-label').textContent='Tap a field above to edit';
-  document.getElementById('modal').classList.add('open');
+  return base+packTot-soldTotal;
 }
 
-function setActive(key){
-  const isPack=document.querySelector('.btn-save').onclick===savePackModal;
-  const isSold=document.querySelector('.btn-save').onclick===saveSoldModal;
-  const state=isPack?PM:isSold?SM:MS;
-  state.active=key;
-  const labels={d1:'Day 1',d2:'Day 2',d3:'Day 3',d4:'Day 4',la:'LA',var:'VAR'};
-  document.getElementById('active-field-label').textContent='Editing: '+labels[key];
-  document.querySelectorAll('.day-input-field').forEach(el=>el.style.background='');
-  const el=document.getElementById('mi-'+key);
-  if(el){el.style.background='rgba(233,69,96,.18)';state.vals[key]='';el.textContent='';}
-  // Show +/- buttons only for VAR field in regular modal
-  const varRow=document.getElementById('var-sign-row');
-  if(varRow)varRow.style.display=(key==='var'&&!isPack&&!isSold)?'flex':'none';
+function calcVariance(tid,code){
+  // (yesterday ending + today delivery) - (product sold today + current encoding)
+  const yest=yesterdayEnding[code]||0;
+  const todayDel=(delData.del1[code]||0);
+  const pstQty=window.pstData[code]||0;
+  const currentEnc=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number((window.counts[tid]||{})[code]?.[k])||0),0);
+  if(yest===0&&todayDel===0&&pstQty===0&&currentEnc===0)return null;
+  return(yest+todayDel)-(pstQty+currentEnc);
 }
 
-function kp(k){
-  const isPack=document.querySelector('.btn-save').onclick===savePackModal;
-  const isSold=document.querySelector('.btn-save').onclick===saveSoldModal;
-  const state=isPack?PM:isSold?SM:MS;
-  if(!state.active)return;
-  let v=String(state.vals[state.active]??'');
-  if(k==='del'){v=v.replace(/[+\-]$/,'');v=v.slice(0,-1);}
-  else if(k==='clr'){v='';}
-  else if(k==='pos'){const num=v.replace(/[+\-]/g,'');v=num?'+'+num:'';}
-  else if(k==='neg'){const num=v.replace(/[+\-]/g,'');v=num?'-'+num:'';}
-  else{v+=k;}
-  state.vals[state.active]=v===''?'':v;
-  const el=document.getElementById('mi-'+state.active);
-  if(el)el.textContent=v;
-}
-function saveModal(){
-  const{tid,code}=MS;
-  if(!counts[tid][code])counts[tid][code]={};
-  Object.assign(counts[tid][code],MS.vals);
-  updateRow(tid,code);
-  recalcWithPacks(tid,code);
-  document.querySelector('.btn-save').onclick=saveModal;
-  document.getElementById('var-sign-row').style.display='none';
-  closeModal();
-}
-
+// ── UPDATE ROW ────────────────────────────────────────────────
 function updateRow(tid,code){
   const sc=safeCode(code);
-  const c=counts[tid][code]||{};
-  const s=sold[tid][code]||{};
+  const c=window.counts[tid][code]||{};
+  const sv=window.soldCounts[tid][code]||{};
   ['d1','d2','d3','d4','la'].forEach(key=>{
-    const raw=(c[key]!==undefined&&c[key]!=='')?Number(c[key]):0;
-    const soldVal=(s[key]!==undefined&&s[key]!=='')?Number(s[key]):0;
-    const net=raw-soldVal;
+    const raw=Number(c[key])||0;
     const el=document.getElementById(`cell-${tid}-${sc}-${key}`);
-    if(el){el.textContent=raw||'';el.classList.toggle('has-value',raw!==0);}
+    if(el){el.textContent=raw||'';el.classList.toggle('has-value',raw>0);}
   });
-  // Total = sum of DIC minus sum of SOLD per day
-  const tot=['d1','d2','d3','d4','la'].reduce((s2,k)=>{
-    const raw=Number(c[k])||0;
-    const sv=Number(s[k])||0;
-    return s2+(raw-sv);
-  },0);
+  const tot=calcProductTotal(tid,code);
   const te=document.getElementById(`tot-${tid}-${sc}`);if(te)te.textContent=tot>0?tot:'';
-  // VAR coloring
   const varVal=c.var;
   const ve=document.getElementById(`var-${tid}-${sc}`);
   if(ve){
@@ -806,50 +980,32 @@ function updateRow(tid,code){
     else if(Number(varVal)<0){ve.textContent=varVal;ve.style.color='#f87171';}
     else{ve.textContent='+'+varVal;ve.style.color='#4ade80';}
   }
+  const variance=calcVariance(tid,code);
+  const vae=document.getElementById(`variance-${tid}-${sc}`);
+  if(vae){
+    if(variance===null||variance===0){vae.textContent='';vae.style.color='';}
+    else if(variance>0){vae.textContent='+'+variance;vae.style.color='#4ade80';}
+    else{vae.textContent=String(variance);vae.style.color='#f87171';}
+  }
 }
 
-// ── SOLD TABLE ───────────────────────────────────────────────
-function buildSoldTable(tid,products,days,colorDays){
-  const thead=document.getElementById(tid==='cake'?'cakes-sold-thead':tid+'-sold-thead');
-  const tbody=document.getElementById(tid==='cake'?'cakes-sold-tbody':tid+'-sold-tbody');
-  if(!thead||!tbody)return;
-  let th=`<tr><th>Product</th><th>Cut</th>`;
-  days.forEach(day=>{
-    const dt=addDays(TODAY,day.offset);
-    const colorDt=dayColor(day.key);
-    const cls=colorDays?dowClass(colorDt):'';
-    th+=`<th class="day-header ${cls}">${day.label}<br><span style="font-weight:400;font-size:.56rem">${fmtShort(dt)}</span></th>`;
-  });
-  th+=`<th>SOLD TOTAL</th></tr>`;
-  thead.innerHTML=th;
-  let html='';
-  products.forEach(p=>{
-    if(p.group){html+=`<tr class="group-row"><td colspan="8">${p.group}</td></tr>`;return;}
-    if(p.pack)return; // skip pack rows in sold table
-    if(!sold[tid][p.code])sold[tid][p.code]={};
-    const sv=sold[tid][p.code];
-    const sc=safeCode(p.code);
-    html+=`<tr><td class="product-name" onclick="openSoldModal('${tid}','${p.code.replace(/'/g,"\\'")}','${p.cutoff}')">${p.code}</td>
-      <td class="cutoff">${p.cutoff}</td>`;
-    ['d1','d2','d3','d4','la'].forEach(key=>{
-      const val=sv[key]!==undefined&&sv[key]!==''?sv[key]:'';
-      html+=`<td class="count-cell${val!==''&&val!==0?' has-value':''}" id="sold-cell-${tid}-${sc}-${key}" style="color:#fb923c">${val}</td>`;
-    });
-    const tot=['d1','d2','d3','d4','la'].reduce((s2,k)=>s2+(Number(sv[k])||0),0);
-    html+=`<td class="total-cell" id="sold-tot-${tid}-${sc}" style="color:#fb923c">${tot||''}</td></tr>`;
-  });
-  tbody.innerHTML=html;
+window.calcProductTotal=function(tid,code){return calcProductTotal(tid,code);};
+
+function recalcWithPacks(tid,tcode){
+  const te=document.getElementById(`tot-${tid}-${safeCode(tcode)}`);
+  if(te){const tot=calcProductTotal(tid,tcode);te.textContent=tot>0?tot:'';}
 }
 
-// ── SOLD MODAL ───────────────────────────────────────────────
-let SM={tid:null,code:null,active:null,vals:{}};
+// ── MODAL ─────────────────────────────────────────────────────
+let MS={tid:null,code:null,active:null,vals:{}};
+let PM={tid:null,code:null,mult:1,targets:[],targetMult:[],active:null,vals:{}};
 
-function openSoldModal(tid,code,cutoff){
-  SM={tid,code,active:null,vals:{}};
-  const existing=sold[tid][code]||{};
-  ['d1','d2','d3','d4','la'].forEach(k=>SM.vals[k]=existing[k]??'');
-  document.getElementById('modal-product-name').textContent=code+' — SOLD';
-  document.getElementById('modal-cutoff').textContent='Quantities will be subtracted from DIC';
+function openModal(tid,code,cutoff){
+  MS={tid,code,active:null,vals:{}};
+  const existing=window.counts[tid][code]||{};
+  ['d1','d2','d3','d4','la','var'].forEach(k=>MS.vals[k]=existing[k]??'');
+  document.getElementById('modal-product-name').textContent=code;
+  document.getElementById('modal-cutoff').textContent=cutoff;
   const days=tid==='cake'?CAKE_DAYS:BREAD_DAYS;
   const colored=tid==='cake';
   let html='';
@@ -859,103 +1015,105 @@ function openSoldModal(tid,code,cutoff){
     const colorDt=dayColor(key);
     const bg=colored?dowBg(colorDt):'#0f3460';
     const fg=colored?dowFg(colorDt):'#fff';
-    html+=`<div class="day-input-block" onclick="setSoldActive('${key}')">
+    html+=`<div class="day-input-block" onclick="setActive('${key}')">
       <div class="day-input-label" style="background:${bg};color:${fg}">${dayObj.label} · ${fmtShort(dt)}</div>
-      <div class="day-input-field" id="mi-${key}" style="color:#fb923c">${SM.vals[key]}</div></div>`;
+      <div class="day-input-field" id="mi-${key}">${MS.vals[key]}</div></div>`;
   });
   const laDt=addDays(TODAY,0);
-  const laColorDt=dayColor('la');
-  const laBg=colored?dowBg(laColorDt):'#0f3460';
-  const laFg=colored?dowFg(laColorDt):'#fff';
-  html+=`<div class="day-input-block" onclick="setSoldActive('la')">
+  const laBg=colored?dowBg(dayColor('la')):'#0f3460';
+  const laFg=colored?dowFg(dayColor('la')):'#fff';
+  html+=`<div class="day-input-block" onclick="setActive('la')">
     <div class="day-input-label" style="background:${laBg};color:${laFg}">LA · ${fmtShort(laDt)}</div>
-    <div class="day-input-field" id="mi-la" style="color:#fb923c">${SM.vals.la}</div></div>`;
-  html+=`<div class="day-input-block" style="opacity:.2"><div class="day-input-label neutral">—</div><div class="day-input-field"></div></div>`;
+    <div class="day-input-field" id="mi-la">${MS.vals.la}</div></div>`;
+  html+=`<div class="day-input-block" onclick="setActive('var')">
+    <div class="day-input-label neutral">VAR</div>
+    <div class="day-input-field" id="mi-var">${MS.vals.var}</div></div>`;
   document.getElementById('modal-day-inputs').innerHTML=html;
   document.getElementById('active-field-label').textContent='Tap a field above to edit';
   document.getElementById('var-sign-row').style.display='none';
-  document.querySelector('.btn-save').onclick=saveSoldModal;
+  document.getElementById('btn-save-modal').onclick=saveModal;
   document.getElementById('modal').classList.add('open');
 }
-
-function setSoldActive(key){
-  SM.active=key;
-  const labels={d1:'Day 1',d2:'Day 2',d3:'Day 3',d4:'Day 4',la:'LA'};
-  document.getElementById('active-field-label').textContent='Editing: '+labels[key];
-  document.querySelectorAll('.day-input-field').forEach(el=>el.style.background='');
-  const el=document.getElementById('mi-'+key);
-  if(el){el.style.background='rgba(233,69,96,.18)';SM.vals[key]='';el.textContent='';}
-}
-
-function saveSoldModal(){
-  const{tid,code}=SM;
-  if(!sold[tid][code])sold[tid][code]={};
-  ['d1','d2','d3','d4','la'].forEach(k=>{sold[tid][code][k]=SM.vals[k];});
-  updateSoldRow(tid,code);
-  updateRow(tid,code); // update DIC total with subtraction
-  document.querySelector('.btn-save').onclick=saveModal;
-  closeModal();
-}
-
-function updateSoldRow(tid,code){
-  const sc=safeCode(code);
-  const sv=sold[tid][code]||{};
-  ['d1','d2','d3','d4','la'].forEach(key=>{
-    const el=document.getElementById(`sold-cell-${tid}-${sc}-${key}`);
-    if(el){const v=sv[key]!==undefined&&sv[key]!==''?sv[key]:'';el.textContent=v;el.classList.toggle('has-value',v!==''&&Number(v)!==0);}
-  });
-  const tot=['d1','d2','d3','d4','la'].reduce((s2,k)=>s2+(Number(sv[k])||0),0);
-  const te=document.getElementById(`sold-tot-${tid}-${sc}`);if(te)te.textContent=tot||'';
-}
-
-function closeModal(){
-  document.getElementById('modal').classList.remove('open');
-  document.querySelector('.btn-save').onclick=saveModal;
-  document.getElementById('var-sign-row').style.display='none';
-  PM.tid=null;SM.active=null;
-}
-function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
-
-// ── PACK MODAL ───────────────────────────────────────────────
-let PM={tid:null,code:null,mult:1,targets:[],targetMult:[],active:null,vals:{}};
 
 function openPackModal(tid,code,mult,targetsStr,targetMultStr){
   PM={tid,code,mult:Number(mult),
     targets:targetsStr?targetsStr.split(','):[],
     targetMult:targetMultStr?targetMultStr.split(',').map(Number):[],
     active:null,vals:{}};
-  const existing=counts[tid][code]||{};
+  const existing=window.counts[tid][code]||{};
   ['d1','d2','d3','d4','la'].forEach(k=>PM.vals[k]=existing[k]??'');
   document.getElementById('modal-product-name').textContent=code+' (×'+mult+')';
-  document.getElementById('modal-cutoff').textContent='Each unit counts as '+mult+' pcs';
+  document.getElementById('modal-cutoff').textContent='Each unit × '+mult;
   const days=BREAD_DAYS;
   let html='';
   ['d1','d2','d3','d4'].forEach(key=>{
     const dayObj=days.find(d=>d.key===key);
     const dt=addDays(TODAY,dayObj.offset);
-    html+=`<div class="day-input-block" onclick="setActive('${key}')">
+    html+=`<div class="day-input-block" onclick="setPackActive('${key}')">
       <div class="day-input-label neutral">${dayObj.label} · ${fmtShort(dt)}</div>
       <div class="day-input-field" id="mi-${key}">${PM.vals[key]}</div></div>`;
   });
-  const laDt=addDays(TODAY,0);
-  html+=`<div class="day-input-block" onclick="setActive('la')">
-    <div class="day-input-label neutral">LA · ${fmtShort(laDt)}</div>
-    <div class="day-input-field" id="mi-la">${PM.vals.la}</div></div>`;
-  html+=`<div class="day-input-block" style="opacity:.3"><div class="day-input-label neutral">VAR</div><div class="day-input-field">—</div></div>`;
+  html+=`<div class="day-input-block" onclick="setPackActive('la')">
+    <div class="day-input-label neutral">LA · ${fmtShort(TODAY)}</div>
+    <div class="day-input-field" id="mi-la">${PM.vals.la}</div></div>
+    <div class="day-input-block" style="opacity:.3"><div class="day-input-label neutral">—</div><div class="day-input-field"></div></div>`;
   document.getElementById('modal-day-inputs').innerHTML=html;
   document.getElementById('active-field-label').textContent='Tap a field above to edit';
-  MS.active=null; // reset regular modal state
+  document.getElementById('var-sign-row').style.display='none';
+  document.getElementById('btn-save-modal').onclick=savePackModal;
   document.getElementById('modal').classList.add('open');
-  // Override save to use pack save
-  document.querySelector('.btn-save').onclick=savePackModal;
+}
+
+function setActive(key){
+  MS.active=key;
+  _highlightActive(key);
+  const varRow=document.getElementById('var-sign-row');
+  if(varRow)varRow.style.display=key==='var'?'flex':'none';
+}
+function setPackActive(key){
+  PM.active=key;
+  _highlightActive(key);
+}
+function _highlightActive(key){
+  const labels={d1:'Day 1',d2:'Day 2',d3:'Day 3',d4:'Day 4',la:'LA',var:'VAR'};
+  document.getElementById('active-field-label').textContent='Editing: '+labels[key];
+  document.querySelectorAll('.day-input-field').forEach(el=>el.style.background='');
+  const el=document.getElementById('mi-'+key);
+  if(el){el.style.background='rgba(233,69,96,.18)';
+    const state=document.getElementById('btn-save-modal').onclick===savePackModal?PM:MS;
+    state.vals[key]='';el.textContent='';}
+}
+
+function kp(k){
+  const isPack=document.getElementById('btn-save-modal').onclick===savePackModal;
+  const state=isPack?PM:MS;
+  if(!state.active)return;
+  let v=String(state.vals[state.active]??'');
+  if(k==='del'){v=v.replace(/[+\-]$/,'');v=v.slice(0,-1);}
+  else if(k==='clr'){v='';}
+  else if(k==='pos'){const n=v.replace(/[+\-]/g,'');v=n?'+'+n:'';}
+  else if(k==='neg'){const n=v.replace(/[+\-]/g,'');v=n?'-'+n:'';}
+  else v+=k;
+  state.vals[state.active]=v===''?'':v;
+  const el=document.getElementById('mi-'+state.active);
+  if(el)el.textContent=v;
+}
+
+function saveModal(){
+  const{tid,code}=MS;
+  if(!window.counts[tid][code])window.counts[tid][code]={};
+  Object.assign(window.counts[tid][code],MS.vals);
+  updateRow(tid,code);
+  recalcWithPacks(tid,code);
+  window.fbSaveCounts&&window.fbSaveCounts();
+  window.fbSaveSnapshot&&window.fbSaveSnapshot();
+  closeModal();
 }
 
 function savePackModal(){
   const{tid,code,mult,targets,targetMult}=PM;
-  if(!counts[tid][code])counts[tid][code]={};
-  // Save raw pack counts (not multiplied)
-  ['d1','d2','d3','d4','la'].forEach(k=>{counts[tid][code][k]=PM.vals[k];});
-  // Update pack row display (shows multiplied values)
+  if(!window.counts[tid][code])window.counts[tid][code]={};
+  ['d1','d2','d3','d4','la'].forEach(k=>{window.counts[tid][code][k]=PM.vals[k];});
   const sc=safeCode(code);
   ['d1','d2','d3','d4','la'].forEach(key=>{
     const raw=PM.vals[key];
@@ -965,180 +1123,120 @@ function savePackModal(){
   });
   const tot=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(PM.vals[k])||0)*mult,0);
   const te=document.getElementById(`tot-${tid}-${sc}`);if(te)te.textContent=tot>0?tot:'';
-  // Add to target product totals
-  targets.forEach((tcode,i)=>{
-    const tm=targetMult[i]||1;
-    if(!counts[tid][tcode])counts[tid][tcode]={};
-    // Recalculate target total including all pack contributions
-    recalcWithPacks(tid,tcode);
-  });
-  document.querySelector('.btn-save').onclick=saveModal;
+  targets.forEach(tcode=>recalcWithPacks(tid,tcode));
+  window.fbSaveCounts&&window.fbSaveCounts();
+  window.fbSaveSnapshot&&window.fbSaveSnapshot();
   closeModal();
 }
 
-function recalcWithPacks(tid,tcode){
-  // Base count from direct entry
-  const base=counts[tid][tcode]||{};
-  const baseTot=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(base[k])||0),0);
-  // Find all packs that contribute to this product
-  const allProds=tid==='cake'?CAKE_PRODUCTS:tid==='bread'?BREAD_PRODUCTS:POLV_PRODUCTS;
-  let packTot=0;
-  allProds.forEach(p=>{
-    if(!p.pack)return;
-    const idx=(p.targets||[]).indexOf(tcode);
-    if(idx<0)return;
-    const tm=p.targetMult[idx]||1;
-    const pc=counts[tid][p.code]||{};
-    const psum=['d1','d2','d3','d4','la'].reduce((s,k)=>s+(Number(pc[k])||0),0);
-    packTot+=psum*p.mult*tm;
-  });
-  const grandTot=baseTot+packTot;
-  const sc=safeCode(tcode);
-  const te=document.getElementById(`tot-${tid}-${sc}`);
-  if(te)te.textContent=grandTot>0?grandTot:'';
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('btn-save-modal').onclick=saveModal;
+  document.getElementById('var-sign-row').style.display='none';
+  PM.tid=null;
 }
+function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
 
-// ── SCREENSHOT ───────────────────────────────────────────────
-function getTableData(tableId){
-  const table=document.getElementById(tableId);
-  if(!table)throw new Error('Table not found: '+tableId+' (try opening the DIC tab first)');
-  const rows=[];
-  table.querySelectorAll('tr').forEach(tr=>{
-    const cells=[];
-    const isGroup=tr.classList.contains('group-row');
-    tr.querySelectorAll('th,td').forEach(cell=>{
-      cells.push({
-        text:cell.textContent.trim(),
-        bg:getComputedStyle(cell).backgroundColor,
-        color:getComputedStyle(cell).color,
-        isHeader:cell.tagName==='TH'
-      });
+// ── DIC SOLD (FIFO) ───────────────────────────────────────────
+function buildSoldTable(){
+  const tbody=document.getElementById('sold-tbody');
+  if(!tbody)return;
+  let html='';
+  const sections=[
+    {label:'🎂 Cakes',products:window.CAKE_PRODUCTS,tid:'cake'},
+    {label:'🍞 Breads',products:window.BREAD_PRODUCTS,tid:'bread'},
+    {label:'🍬 Polvoron',products:window.POLV_PRODUCTS,tid:'polv'},
+  ];
+  sections.forEach(sec=>{
+    html+=`<tr><td colspan="3" class="sold-section-header" style="padding:8px 10px">${sec.label}</td></tr>`;
+    sec.products.forEach(p=>{
+      if(p.group||p.pack)return;
+      const tot=calcProductTotal(sec.tid,p.code);
+      html+=`<tr data-code="${p.code}" data-tid="${sec.tid}" class="sold-row">
+        <td style="font-weight:600">${p.code}</td>
+        <td style="text-align:center"><input type="number" class="sold-qty-input" id="sold-input-${safeCode(p.code)}" placeholder="0" min="0"/></td>
+        <td style="text-align:center;color:var(--accent2);font-weight:700" id="sold-avail-${safeCode(p.code)}">${tot||0}</td>
+      </tr>`;
     });
-    if(cells.length)rows.push({cells,isGroup});
   });
-  return rows;
+  tbody.innerHTML=html;
 }
 
-function drawTableToCanvas(ctx,rows,startY,colWidths,rowHeight,canvasWidth){
-  ctx.font='10px Segoe UI, sans-serif';
-  let y=startY;
+function filterSoldTable(){
+  const q=document.getElementById('sold-search').value.toLowerCase();
+  document.querySelectorAll('#sold-tbody .sold-row').forEach(row=>{
+    const code=row.dataset.code||'';
+    row.style.display=code.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+function applySold(){
+  const result=[];
+  const rows=document.querySelectorAll('#sold-tbody .sold-row');
   rows.forEach(row=>{
-    let x=8;
-    if(row.isGroup){
-      ctx.fillStyle='#0f3460';
-      ctx.fillRect(8,y,canvasWidth-16,rowHeight);
-      ctx.fillStyle='#f5a623';
-      ctx.font='bold 11px Segoe UI, sans-serif';
-      ctx.textAlign='left';
-      ctx.fillText(row.cells[0].text,14,y+rowHeight/2+4);
-      ctx.font='10px Segoe UI, sans-serif';
-      y+=rowHeight;
-      return;
-    }
-    row.cells.forEach((cell,i)=>{
-      const w=colWidths[i]||50;
-      ctx.fillStyle=cell.bg&&cell.bg!=='rgba(0, 0, 0, 0)'?cell.bg:(row.cells[0].isHeader?'#0f3460':'#16213e');
-      ctx.fillRect(x,y,w,rowHeight);
-      ctx.strokeStyle='#2a3a5c';
-      ctx.lineWidth=0.5;
-      ctx.strokeRect(x,y,w,rowHeight);
-      ctx.fillStyle=cell.color&&cell.color!=='rgba(0, 0, 0, 0)'?cell.color:'#eaeaea';
-      ctx.font=cell.isHeader?'bold 9px Segoe UI, sans-serif':(i===0?'600 10px Segoe UI, sans-serif':'10px Segoe UI, sans-serif');
-      ctx.textAlign=i===0?'left':'center';
-      const textX=i===0?x+5:x+w/2;
-      // Truncate long text
-      let txt=cell.text;
-      if(ctx.measureText(txt).width>w-4){
-        while(ctx.measureText(txt+'…').width>w-4&&txt.length>1){txt=txt.slice(0,-1);}
-        txt+='…';
+    const code=row.dataset.code;
+    const tid=row.dataset.tid;
+    const input=document.getElementById('sold-input-'+safeCode(code));
+    if(!input)return;
+    let qty=parseInt(input.value)||0;
+    if(qty<=0)return;
+    if(!window.soldCounts[tid][code])window.soldCounts[tid][code]={};
+    // FIFO: deduct from d4 first, then d3, d2, d1, la
+    const fifoOrder=['d4','d3','d2','d1','la'];
+    const c=window.counts[tid][code]||{};
+    let deducted=0;
+    fifoOrder.forEach(key=>{
+      if(qty<=0)return;
+      const available=Math.max(0,(Number(c[key])||0)-(Number(window.soldCounts[tid][code][key])||0));
+      const take=Math.min(qty,available);
+      if(take>0){
+        window.soldCounts[tid][code][key]=(Number(window.soldCounts[tid][code][key])||0)+take;
+        qty-=take;
+        deducted+=take;
       }
-      ctx.fillText(txt,textX,y+rowHeight/2+3);
-      x+=w;
     });
-    y+=rowHeight;
+    if(deducted>0){
+      result.push(`${code}: −${deducted}`);
+      updateRow(tid,code);
+      const availEl=document.getElementById('sold-avail-'+safeCode(code));
+      if(availEl)availEl.textContent=calcProductTotal(tid,code)||0;
+      input.value='';
+    }
   });
-  return y;
+  window.fbSaveSold&&window.fbSaveSold();
+  window.fbSaveSnapshot&&window.fbSaveSnapshot();
+  document.getElementById('sold-result').textContent=result.length
+    ?'✓ Applied: '+result.join(', ')
+    :'No quantities entered.';
 }
 
-function takeScreenshot(type){
-  const status=document.getElementById('screenshot-status');
-  const old=document.getElementById('ss-preview-wrap');
-  if(old)old.remove();
-  status.textContent='Rendering...';
-
-  try{
-    const colWidths=[68,38,32,32,32,30,30,30,30,30,34,38,32,32,40];
-    const canvasWidth=colWidths.reduce((a,b)=>a+b,0)+16;
-    const rowHeight=20;
-
-    // Gather data first to compute total height
-    const tablesToRender=type==='cakes'
-      ? [{label:'🎂 CAKES + ICING',id:'cake-table'}]
-      : [{label:'🍞 BREADS & PBDs',id:'bread-table'},{label:'🍬 POLVORON',id:'polv-table'}];
-
-    let totalRows=0;
-    const allRowData=tablesToRender.map(t=>{
-      const rows=getTableData(t.id);
-      totalRows+=rows.length+2; // +2 for label spacing
-      return {label:t.label,rows};
-    });
-
-    const canvasHeight=60+totalRows*rowHeight+20;
-    const canvas=document.createElement('canvas');
-    canvas.width=canvasWidth*2;
-    canvas.height=canvasHeight*2;
-    const ctx=canvas.getContext('2d');
-    ctx.scale(2,2);
-
-    // Background
-    ctx.fillStyle='#1a1a2e';
-    ctx.fillRect(0,0,canvasWidth,canvasHeight);
-
-    // Header
-    ctx.fillStyle='#f5a623';
-    ctx.font='bold 13px Segoe UI, sans-serif';
-    ctx.textAlign='left';
-    ctx.fillText('RR Dashboard — '+document.getElementById('today-display').textContent,8,20);
-
-    let y=36;
-    allRowData.forEach(t=>{
-      ctx.fillStyle='#f5a623';
-      ctx.font='bold 11px Segoe UI, sans-serif';
-      ctx.textAlign='left';
-      ctx.fillText(t.label,8,y+10);
-      y+=20;
-      y=drawTableToCanvas(ctx,t.rows,y,colWidths,rowHeight,canvasWidth);
-      y+=10;
-    });
-
-    const imgSrc=canvas.toDataURL('image/png');
-    const preview=document.createElement('div');
-    preview.id='ss-preview-wrap';
-    preview.style.cssText='margin-top:16px;';
-    preview.innerHTML=`
-      <p style="font-size:.72rem;color:#f5a623;margin-bottom:8px;">⬇ Long-press the image (mobile) or tap the button below:</p>
-      <img src="${imgSrc}" style="width:100%;border-radius:8px;border:1px solid #2a3a5c;" />
-      <a href="${imgSrc}" download="DIC_${type}_${fmtShort(TODAY).replace('.','')}.png" style="display:block;text-align:center;margin-top:10px;padding:10px;background:#e94560;color:#fff;border-radius:8px;text-decoration:none;font-size:.8rem;font-weight:600;">⬇ Download PNG</a>`;
-    document.getElementById('screenshot-status').after(preview);
-    status.textContent='✓ Image ready';
-  } catch(e){
-    status.textContent='Error: '+e.message;
-  }
-}
+// ── DELIVERY ─────────────────────────────────────────────────
 function extractDel(slot){
   const raw=document.getElementById('paste-'+slot).value;
   if(!raw.trim())return;
   const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
   let matched=0,unmatched=[];
   lines.forEach(line=>{
+    let name='',qty=0;
+    // Try tab-separated format first (PC format)
     const parts=line.split('\t');
-    if(parts.length<4)return;
-    const name=parts[0].trim();
-    const qty=parseInt(parts[3].replace(/,/g,''));
-    if(isNaN(qty))return;
+    if(parts.length>=4){
+      name=parts[0].trim();
+      qty=parseInt(parts[3].replace(/,/g,''));
+    } else {
+      // Mobile format: extract number before 'kg' or before weight value
+      // Pattern: ...BAK{qty} {weight}kg
+      const mobileMatch=line.match(/BAK(\d+)\s+[\d,]+/);
+      if(mobileMatch){
+        qty=parseInt(mobileMatch[1]);
+        // Product name is everything before BOX/PC/PAC
+        name=line.replace(/\s*(BOX|PC|PAC)\s*BAK.*/i,'').trim();
+      }
+    }
+    if(!name||isNaN(qty)||qty===0)return;
     const lower=name.toLowerCase();
     let found=null;
-    for(const[kw,code] of DEL_MAP){if(lower.includes(kw.toLowerCase())){found=code;break;}}
+    for(const[kw,code] of window.DEL_MAP){if(lower.includes(kw.toLowerCase())){found=code;break;}}
     if(found){
       delData[slot][found]=qty;
       matched++;
@@ -1154,39 +1252,20 @@ function extractDel(slot){
   document.getElementById('result-'+slot).textContent=`✓ ${matched} matched${unmatched.length?` · ${unmatched.length} unmatched`:''}`;
 }
 
-// ── PRODUCT SOLD / ADQ ───────────────────────────────────────
-function loadADQ(){
-  try{
-    const saved=localStorage.getItem('rr_adq');
-    if(saved)adqData=JSON.parse(saved);
-  }catch(e){}
-}
-
-function saveADQStorage(){
-  try{localStorage.setItem('rr_adq',JSON.stringify(adqData));}catch(e){}
-}
-
-function calcADQ(){
-  const raw=document.getElementById('ps-paste').value;
-  if(!raw.trim()){document.getElementById('ps-result-info').textContent='Nothing to parse.';return;}
+// ── PRODUCT SOLD 15 DAYS ─────────────────────────────────────
+function parseSalesReport(raw,divisor){
   const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
   const totals={};
-
   lines.forEach(line=>{
     const parts=line.split('\t');
-    if(parts.length<3)return;
+    if(parts.length<2)return;
     const name=parts[0].trim();
-    const qtyStr=parts[1]||parts[2]||'';
+    const qtyStr=parts[1]||'';
     const qty=parseInt(qtyStr.replace(/,/g,''));
     if(isNaN(qty)||qty===0)return;
     const lower=name.toLowerCase();
-    // Skip?
     if(ADQ_SKIP.some(s=>lower.includes(s)))return;
-    // Category row check (no number in col 1 position)
-    if(parts.length===6&&isNaN(parseInt(parts[1])))return;
-
-    // Find mapping
-    for(const[kw,code,pack] of ADQ_MAP){
+    for(const[kw,code,pack] of window.ADQ_MAP){
       if(pack===0)continue;
       if(lower.includes(kw.toLowerCase())){
         if(!totals[code])totals[code]=0;
@@ -1195,21 +1274,25 @@ function calcADQ(){
       }
     }
   });
+  return totals;
+}
 
-  // Build adqData
-  adqData={};
+function calcADQ(){
+  const raw=document.getElementById('ps-paste').value;
+  if(!raw.trim()){document.getElementById('ps-result-info').textContent='Nothing to parse.';return;}
+  const totals=parseSalesReport(raw,15);
+  window.adqData={};
   Object.entries(totals).forEach(([code,qty])=>{
     const adq=qty/15;
-    adqData[code]={qty,adq,min:adq*1.2,max:adq*1.5};
+    window.adqData[code]={qty,adq,min:adq*1.2,max:adq*1.5};
   });
-
-  saveADQStorage();
+  window.fbSaveADQ&&window.fbSaveADQ();
   renderPSTable();
-  // Update DIC tables
+  // Update DIC ADQ columns
   ['cake','bread','polv'].forEach(tid=>{
-    const products=tid==='cake'?CAKE_PRODUCTS:tid==='bread'?BREAD_PRODUCTS:POLV_PRODUCTS;
+    const products=tid==='cake'?window.CAKE_PRODUCTS:tid==='bread'?window.BREAD_PRODUCTS:window.POLV_PRODUCTS;
     products.forEach(p=>{
-      if(p.group)return;
+      if(p.group||p.pack)return;
       const sc=safeCode(p.code);
       const{adq,min,max}=getADQ(p.code);
       const ae=document.getElementById(`adq-${tid}-${sc}`);if(ae)ae.textContent=adq?adq.toFixed(1):'';
@@ -1217,14 +1300,13 @@ function calcADQ(){
       const mae=document.getElementById(`max-${tid}-${sc}`);if(mae)mae.textContent=max?max.toFixed(1):'';
     });
   });
-  const n=Object.keys(adqData).length;
-  document.getElementById('ps-result-info').textContent=`✓ ${n} products calculated and saved.`;
+  document.getElementById('ps-result-info').textContent=`✓ ${Object.keys(window.adqData).length} products calculated and saved.`;
 }
 
 function clearPS(){
   if(!confirm('Clear saved ADQ data?'))return;
-  adqData={};
-  saveADQStorage();
+  window.adqData={};
+  window.fbSaveADQ&&window.fbSaveADQ();
   document.getElementById('ps-paste').value='';
   document.getElementById('ps-result-info').textContent='Cleared.';
   renderPSTable();
@@ -1232,58 +1314,87 @@ function clearPS(){
 
 function renderPSTable(){
   const tbody=document.getElementById('ps-tbody');
-  const allProducts=[...CAKE_PRODUCTS,...BREAD_PRODUCTS,...POLV_PRODUCTS];
+  if(!tbody)return;
+  const all=[...window.CAKE_PRODUCTS,...window.BREAD_PRODUCTS,...window.POLV_PRODUCTS];
   let html='';
-  allProducts.forEach(p=>{
-    if(p.group){html+=`<tr><td class="ps-group" colspan="6">${p.group}</td></tr>`;return;}
-    const d=adqData[p.code];
-    html+=`<tr><td class="ps-name">${p.code}</td><td style="color:var(--muted);font-size:.65rem">${p.code}</td>
+  all.forEach(p=>{
+    if(p.group){html+=`<tr><td class="ps-group" colspan="5">${p.group}</td></tr>`;return;}
+    if(p.pack)return;
+    const d=window.adqData[p.code];
+    html+=`<tr><td class="ps-name">${p.code}</td>
       <td>${d?d.qty:''}</td><td>${d?d.adq.toFixed(2):''}</td>
       <td>${d?d.min.toFixed(2):''}</td><td>${d?d.max.toFixed(2):''}</td></tr>`;
   });
   tbody.innerHTML=html;
 }
 
-// ── SALES ────────────────────────────────────────────────────
-function loadSales(){
-  try{
-    const saved=localStorage.getItem('rr_sales');
-    const all=saved?JSON.parse(saved):{};
-    const todayKey=fmtShort(TODAY);
-    const todayData=all[todayKey]||{};
-    ['sales','tc','waste','discount','grab','fpanda'].forEach(f=>{
-      const el=document.getElementById('s-'+f);
-      if(el&&todayData[f]!==undefined)el.value=todayData[f];
-    });
-    ['mtd-tgt','mtd-ly','mtd','ac'].forEach(f=>{
-      const el=document.getElementById('s-'+f);
-      const key='mtd_'+f;
-      if(el&&all[key]!==undefined)el.value=all[key];
-    });
-    updateADS();
-    // Auto-update ADS when MTD changes
-    document.getElementById('s-mtd').addEventListener('input',updateADS);
-  }catch(e){}
+// ── PRODUCT SOLD TODAY ────────────────────────────────────────
+function calcPST(){
+  const raw=document.getElementById('pst-paste').value;
+  if(!raw.trim()){document.getElementById('pst-result-info').textContent='Nothing to parse.';return;}
+  const totals=parseSalesReport(raw,1);
+  window.pstData={};
+  Object.entries(totals).forEach(([code,qty])=>{window.pstData[code]=qty;});
+  renderPSTTable();
+  // Refresh variance columns
+  refreshAllVariance();
+  document.getElementById('pst-result-info').textContent=`✓ ${Object.keys(window.pstData).length} products parsed.`;
 }
 
-function saveSales(){
-  try{
-    const saved=localStorage.getItem('rr_sales');
-    const all=saved?JSON.parse(saved):{};
-    const todayKey=fmtShort(TODAY);
-    all[todayKey]={};
-    ['sales','tc','waste','discount','grab','fpanda'].forEach(f=>{
-      const v=document.getElementById('s-'+f).value;
-      if(v)all[todayKey][f]=Number(v);
+function clearPST(){
+  window.pstData={};
+  document.getElementById('pst-paste').value='';
+  document.getElementById('pst-result-info').textContent='Cleared.';
+  renderPSTTable();
+  refreshAllVariance();
+}
+
+function renderPSTTable(){
+  const tbody=document.getElementById('pst-tbody');
+  if(!tbody)return;
+  const all=[...window.CAKE_PRODUCTS,...window.BREAD_PRODUCTS,...window.POLV_PRODUCTS];
+  let html='';
+  all.forEach(p=>{
+    if(p.group){html+=`<tr><td class="ps-group" colspan="2">${p.group}</td></tr>`;return;}
+    if(p.pack)return;
+    const qty=window.pstData[p.code];
+    if(!qty&&qty!==0)return;
+    html+=`<tr><td class="ps-name">${p.code}</td><td style="text-align:center;color:#4ade80;font-weight:700">${qty}</td></tr>`;
+  });
+  tbody.innerHTML=html||'<tr><td colspan="2" style="text-align:center;color:var(--muted);padding:20px">No data yet</td></tr>';
+}
+
+function refreshAllVariance(){
+  ['cake','bread','polv'].forEach(tid=>{
+    const prods=tid==='cake'?window.CAKE_PRODUCTS:tid==='bread'?window.BREAD_PRODUCTS:window.POLV_PRODUCTS;
+    prods.forEach(p=>{
+      if(p.group||p.pack)return;
+      const sc=safeCode(p.code);
+      const variance=calcVariance(tid,p.code);
+      const el=document.getElementById(`variance-${tid}-${sc}`);
+      if(el){
+        if(variance===null||variance===0){el.textContent='';el.style.color='';}
+        else if(variance>0){el.textContent='+'+variance;el.style.color='#4ade80';}
+        else{el.textContent=String(variance);el.style.color='#f87171';}
+      }
     });
-    ['mtd-tgt','mtd-ly','mtd','ac'].forEach(f=>{
-      const v=document.getElementById('s-'+f).value;
-      if(v)all['mtd_'+f]=Number(v);
-    });
-    localStorage.setItem('rr_sales',JSON.stringify(all));
-    updateADS();
-    document.getElementById('sales-save-note').textContent='✓ Saved '+todayKey;
-  }catch(e){}
+  });
+}
+
+// ── SALES ─────────────────────────────────────────────────────
+function loadSalesUI(){
+  const d=window.salesData;
+  const todayKey=fmtShort(TODAY);
+  const todayData=d[todayKey]||{};
+  ['sales','tc','waste','discount','grab','fpanda'].forEach(f=>{
+    const el=document.getElementById('s-'+f);
+    if(el&&todayData[f]!==undefined)el.value=todayData[f];
+  });
+  ['mtd-tgt','mtd-ly','mtd','ac'].forEach(f=>{
+    const el=document.getElementById('s-'+f);
+    if(el&&d['mtd_'+f]!==undefined)el.value=d['mtd_'+f];
+  });
+  updateADS();
 }
 
 function updateADS(){
@@ -1291,6 +1402,204 @@ function updateADS(){
   const mtd=Number(document.getElementById('s-mtd').value)||0;
   const ads=day>0&&mtd>0?Math.round(mtd/day):0;
   document.getElementById('ads-computed').textContent=ads?ads.toLocaleString():'—';
+}
+
+function saveSales(){
+  const todayKey=fmtShort(TODAY);
+  if(!window.salesData[todayKey])window.salesData[todayKey]={};
+  ['sales','tc','waste','discount','grab','fpanda'].forEach(f=>{
+    const v=document.getElementById('s-'+f).value;
+    if(v)window.salesData[todayKey][f]=Number(v);
+  });
+  ['mtd-tgt','mtd-ly','mtd','ac'].forEach(f=>{
+    const v=document.getElementById('s-'+f).value;
+    if(v)window.salesData['mtd_'+f]=Number(v);
+  });
+  window.fbSaveSales&&window.fbSaveSales();
+  updateADS();
+  document.getElementById('sales-save-note').textContent='✓ Saved '+todayKey;
+}
+
+// ── PRODUCT CONFIG ────────────────────────────────────────────
+let activeConfig='cakes';
+function switchConfig(panel){
+  activeConfig=panel;
+  document.querySelectorAll('.config-pick-btn').forEach((b,i)=>b.classList.toggle('active',['cakes','breads','maps'][i]===panel));
+  document.querySelectorAll('.config-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('config-'+panel).classList.add('active');
+  renderConfigPanel();
+}
+
+function renderConfigPanel(){
+  renderProductConfig('cakes',window.CAKE_PRODUCTS);
+  renderProductConfig('breads',[...window.BREAD_PRODUCTS,...window.POLV_PRODUCTS]);
+  renderMapsConfig();
+}
+
+function renderProductConfig(panelId,products){
+  const panel=document.getElementById('config-'+panelId);
+  if(!panel)return;
+  let html='';
+  let currentGroup='';
+  products.forEach((p,i)=>{
+    if(p.group){
+      currentGroup=p.group;
+      html+=`<div class="config-sub-title">${p.group}</div>`;
+      html+=`<div class="product-list-edit" id="grp-${panelId}-${safeCode(p.group)}">`;
+      return;
+    }
+    if(p.pack)return; // skip pack rows in config for now
+    html+=`<div class="product-row-edit" data-idx="${i}" data-panel="${panelId}">
+      <span class="group-label" style="font-size:.6rem;color:var(--muted)">${p.cutoff||''}</span>
+      <input value="${p.code}" onchange="updateProductCode('${panelId}',${i},this.value)" />
+      <input value="${p.cutoff||''}" placeholder="cutoff" style="max-width:70px" onchange="updateProductCutoff('${panelId}',${i},this.value)" />
+      <button class="del-btn" onclick="removeProduct('${panelId}',${i})">✕</button>
+    </div>`;
+  });
+  html+=`</div>
+    <button class="btn-add-product" onclick="addProduct('${panelId}')">+ Add Product</button>
+    <button class="btn-save-config" onclick="saveConfig()">💾 Save Config</button>
+    <p class="config-note">Changes rebuild tables and sync to Firebase.</p>`;
+  panel.innerHTML=html;
+}
+
+function renderMapsConfig(){
+  const panel=document.getElementById('config-maps');
+  if(!panel)return;
+  let html=`<div class="config-sub-title">DEL MAP (keyword → product code)</div>`;
+  window.DEL_MAP.forEach((entry,i)=>{
+    html+=`<div class="map-row-edit">
+      <input value="${entry[0]}" onchange="window.DEL_MAP[${i}][0]=this.value" placeholder="keyword"/>
+      <input value="${entry[1]}" onchange="window.DEL_MAP[${i}][1]=this.value" placeholder="code" style="max-width:80px"/>
+      <button class="del-btn" onclick="window.DEL_MAP.splice(${i},1);renderMapsConfig()">✕</button>
+    </div>`;
+  });
+  html+=`<button class="btn-add-product" onclick="window.DEL_MAP.push(['','']);renderMapsConfig()">+ Add DEL Entry</button>`;
+  html+=`<div class="config-sub-title" style="margin-top:16px">ADQ MAP (keyword → code, pack size)</div>`;
+  window.ADQ_MAP.forEach((entry,i)=>{
+    html+=`<div class="map-row-edit">
+      <input value="${entry[0]}" onchange="window.ADQ_MAP[${i}][0]=this.value" placeholder="keyword"/>
+      <input value="${entry[1]}" onchange="window.ADQ_MAP[${i}][1]=this.value" placeholder="code" style="max-width:70px"/>
+      <input value="${entry[2]||1}" onchange="window.ADQ_MAP[${i}][2]=Number(this.value)" placeholder="×" style="max-width:40px"/>
+      <button class="del-btn" onclick="window.ADQ_MAP.splice(${i},1);renderMapsConfig()">✕</button>
+    </div>`;
+  });
+  html+=`<button class="btn-add-product" onclick="window.ADQ_MAP.push(['','',1]);renderMapsConfig()">+ Add ADQ Entry</button>
+    <button class="btn-save-config" onclick="saveConfig()" style="margin-top:12px">💾 Save Maps</button>`;
+  panel.innerHTML=html;
+}
+
+function updateProductCode(panelId,idx,val){
+  const arr=panelId==='cakes'?window.CAKE_PRODUCTS:window.BREAD_PRODUCTS;
+  if(arr[idx])arr[idx].code=val;
+}
+function updateProductCutoff(panelId,idx,val){
+  const arr=panelId==='cakes'?window.CAKE_PRODUCTS:window.BREAD_PRODUCTS;
+  if(arr[idx])arr[idx].cutoff=val;
+}
+function removeProduct(panelId,idx){
+  const arr=panelId==='cakes'?window.CAKE_PRODUCTS:window.BREAD_PRODUCTS;
+  arr.splice(idx,1);
+  renderConfigPanel();
+}
+function addProduct(panelId){
+  const arr=panelId==='cakes'?window.CAKE_PRODUCTS:window.BREAD_PRODUCTS;
+  arr.push({code:'NEW',cutoff:'-3 days'});
+  renderConfigPanel();
+}
+function saveConfig(){
+  window.fbSaveConfig&&window.fbSaveConfig();
+  // Rebuild tables
+  buildTable('cake',window.CAKE_PRODUCTS,CAKE_DAYS,true);
+  buildTable('bread',window.BREAD_PRODUCTS,BREAD_DAYS,false);
+  buildTable('polv',window.POLV_PRODUCTS,BREAD_DAYS,false);
+  buildSoldTable();
+  alert('Config saved and tables updated!');
+}
+
+// ── PRINT / SCREENSHOT ────────────────────────────────────────
+function getTableData(tableId){
+  const table=document.getElementById(tableId);
+  if(!table)throw new Error('Table not found: '+tableId);
+  const rows=[];
+  table.querySelectorAll('tr').forEach(tr=>{
+    const cells=[];
+    const isGroup=tr.classList.contains('group-row');
+    tr.querySelectorAll('th,td').forEach(cell=>{
+      cells.push({text:cell.textContent.trim(),bg:getComputedStyle(cell).backgroundColor,color:getComputedStyle(cell).color,isHeader:cell.tagName==='TH'});
+    });
+    if(cells.length)rows.push({cells,isGroup});
+  });
+  return rows;
+}
+
+function drawTableToCanvas(ctx,rows,startY,colWidths,rowHeight,canvasWidth){
+  let y=startY;
+  rows.forEach(row=>{
+    let x=8;
+    if(row.isGroup){
+      ctx.fillStyle='#0f3460';
+      ctx.fillRect(8,y,canvasWidth-16,rowHeight);
+      ctx.fillStyle='#f5a623';
+      ctx.font='bold 10px Segoe UI,sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText(row.cells[0].text,14,y+rowHeight/2+3);
+      y+=rowHeight;return;
+    }
+    row.cells.forEach((cell,i)=>{
+      const w=colWidths[i]||40;
+      ctx.fillStyle=cell.bg&&cell.bg!=='rgba(0, 0, 0, 0)'?cell.bg:(row.cells[0].isHeader?'#0f3460':'#16213e');
+      ctx.fillRect(x,y,w,rowHeight);
+      ctx.strokeStyle='#2a3a5c';ctx.lineWidth=0.5;ctx.strokeRect(x,y,w,rowHeight);
+      ctx.fillStyle=cell.color&&cell.color!=='rgba(0, 0, 0, 0)'?cell.color:'#eaeaea';
+      ctx.font=cell.isHeader?'bold 8px Segoe UI,sans-serif':(i===0?'600 9px Segoe UI,sans-serif':'9px Segoe UI,sans-serif');
+      ctx.textAlign=i===0?'left':'center';
+      const textX=i===0?x+4:x+w/2;
+      let txt=cell.text;
+      if(ctx.measureText(txt).width>w-3){while(ctx.measureText(txt+'…').width>w-3&&txt.length>1)txt=txt.slice(0,-1);txt+='…';}
+      ctx.fillText(txt,textX,y+rowHeight/2+3);
+      x+=w;
+    });
+    y+=rowHeight;
+  });
+  return y;
+}
+
+function takeScreenshot(type){
+  const status=document.getElementById('screenshot-status');
+  const old=document.getElementById('ss-preview-wrap');
+  if(old)old.innerHTML='';
+  status.textContent='Rendering...';
+  try{
+    const colWidths=[65,32,28,28,28,26,26,26,26,26,28,28,28,28,28,36];
+    const canvasWidth=colWidths.reduce((a,b)=>a+b,0)+16;
+    const rowHeight=18;
+    const tables=type==='cakes'
+      ?[{label:'🎂 CAKES + ICING',id:'cake-table'}]
+      :[{label:'🍞 BREADS & PBDs',id:'bread-table'},{label:'🍬 POLVORON',id:'polv-table'}];
+    let totalRows=0;
+    const allData=tables.map(t=>{const rows=getTableData(t.id);totalRows+=rows.length+2;return{label:t.label,rows};});
+    const canvasHeight=60+totalRows*rowHeight+20;
+    const canvas=document.createElement('canvas');
+    canvas.width=canvasWidth*2;canvas.height=canvasHeight*2;
+    const ctx=canvas.getContext('2d');ctx.scale(2,2);
+    ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvasWidth,canvasHeight);
+    ctx.fillStyle='#f5a623';ctx.font='bold 12px Segoe UI,sans-serif';ctx.textAlign='left';
+    ctx.fillText('RR Dashboard — '+document.getElementById('today-display').textContent,8,18);
+    let y=32;
+    allData.forEach(t=>{
+      ctx.fillStyle='#f5a623';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';
+      ctx.fillText(t.label,8,y+10);y+=18;
+      y=drawTableToCanvas(ctx,t.rows,y,colWidths,rowHeight,canvasWidth);y+=8;
+    });
+    const imgSrc=canvas.toDataURL('image/png');
+    const wrap=document.getElementById('ss-preview-wrap');
+    wrap.innerHTML=`
+      <p style="font-size:.72rem;color:#f5a623;margin-bottom:8px;">⬇ Long-press image to save (mobile) or use the button below:</p>
+      <img src="${imgSrc}" style="width:100%;border-radius:8px;border:1px solid #2a3a5c;"/>
+      <a href="${imgSrc}" download="DIC_${type}_${fmtShort(TODAY).replace('.','')}.png" style="display:block;text-align:center;margin-top:10px;padding:10px;background:#e94560;color:#fff;border-radius:8px;text-decoration:none;font-size:.8rem;font-weight:600;">⬇ Download PNG</a>`;
+    status.textContent='✓ Image ready';
+  }catch(e){status.textContent='Error: '+e.message;}
 }
 </script>
 </body>
